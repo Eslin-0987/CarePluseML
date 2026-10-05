@@ -6,7 +6,6 @@ __pycache__/
 *.py[cod]
 *$py.class
 *.sqlite3
-database.db
 
 # OS Artifacts
 .DS_Store

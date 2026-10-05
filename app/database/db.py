@@ -151,6 +151,17 @@ def update_user_account(db_path, user_id, name, age=None, gender=None):
         )
         conn.commit()
 
+def update_user_password(db_path, user_id, password_hash):
+    """Update user password hash."""
+    with get_db_connection(db_path) as conn:
+        cursor = conn.cursor()
+        now = datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S')
+        cursor.execute(
+            """UPDATE users SET password_hash = ?, updated_at = ? WHERE id = ?""",
+            (password_hash, now, user_id)
+        )
+        conn.commit()
+
 # --- Health Profile Functions ---
 
 def get_health_profile(db_path, user_id):

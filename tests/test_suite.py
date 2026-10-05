@@ -248,3 +248,31 @@ def test_favicon_and_navbar_auth_state(client):
     assert res_login_redirect.status_code == 302
     assert '/view_dashboard' in res_login_redirect.headers['Location']
 
+def test_password_reset_and_sidebar_order(client):
+    # 1. Password reset flow
+    res_reset = client.post('/reset-password', data={
+        'email': 'alice@example.com',
+        'password': 'newsecretpassword123',
+        'confirm_password': 'newsecretpassword123'
+    }, follow_redirects=True)
+    assert res_reset.status_code == 200
+    assert b"Password successfully reset" in res_reset.data
+
+    # 2. Login with new password
+    res_login = client.post('/login', data={
+        'email': 'alice@example.com',
+        'password': 'newsecretpassword123'
+    }, follow_redirects=True)
+    assert res_login.status_code == 200
+    assert b"Welcome back, Alice Patient" in res_login.data
+
+    # 3. Sidebar order: History appears before Methodology & System
+    html = res_login.data.decode('utf-8')
+    pos_history = html.find('History')
+    pos_methodology = html.find('Methodology & System')
+    assert pos_history < pos_methodology, "Methodology & System should be placed below History"
+
+    # 4. Breadcrumbs (Home / Dashboard) removed
+    assert 'class="breadcrumbs"' not in html
+
+

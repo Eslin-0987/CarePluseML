@@ -47,8 +47,9 @@
     </button>
   </form>
 
-  <div class="auth-footer">
-    Don't have an account? <a href="{{ url_for('auth.signup') }}">Create your profile</a>
+  <div class="auth-footer" style="display: flex; justify-content: space-between; align-items: center; margin-top: 18px; font-size: 13px;">
+    <a href="{{ url_for('auth.reset_password') }}" style="color: var(--text-secondary); text-decoration: underline;">Forgot password?</a>
+    <a href="{{ url_for('auth.signup') }}" style="font-weight: 600;">Create new profile &rarr;</a>
   </div>
 </div>
 {% endblock %}

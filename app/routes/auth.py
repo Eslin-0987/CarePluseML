@@ -10,7 +10,7 @@ from flask_jwt_extended import (
 )
 from werkzeug.security import generate_password_hash, check_password_hash
 from app.database.db import (
-    create_user, get_user_by_email, get_user_by_id, log_activity
+    create_user, get_user_by_email, get_user_by_id, log_activity, update_user_password
 )
 
 auth_bp = Blueprint('auth', __name__)
@@ -69,9 +69,8 @@ def auth_required(f):
 def signup():
     """User registration flow with server-side validation and password hashing."""
     from flask import session
-    # If already logged in, do not let another user accidentally overwrite the active session
-    if request.method == 'GET' and (getattr(g, 'user', None) or session.get('user_id')):
-        flash("You are already signed in. Please Sign Out first if you wish to register a different account.", "info")
+    # If a real verified user is currently logged in, redirect them to dashboard
+    if request.method == 'GET' and getattr(g, 'user', None):
         return redirect(url_for('dashboard.view_dashboard'))
 
     if request.method == 'POST':
@@ -153,9 +152,8 @@ def signup():
 def login():
     """User login flow with password verification and JWT token issuance."""
     from flask import session
-    # If already logged in, redirect to dashboard rather than re-displaying login
-    if request.method == 'GET' and (getattr(g, 'user', None) or session.get('user_id')):
-        flash("You are already logged in.", "info")
+    # If a real verified user is currently logged in, redirect to dashboard
+    if request.method == 'GET' and getattr(g, 'user', None):
         return redirect(url_for('dashboard.view_dashboard'))
 
     if request.method == 'POST':
@@ -213,4 +211,38 @@ def logout():
     unset_jwt_cookies(response)
     flash("You have been securely logged out.", "info")
     return response
+
+@auth_bp.route('/reset-password', methods=['GET', 'POST'])
+def reset_password():
+    """Simple password reset for educational/prototype deployment."""
+    from flask import session
+    if request.method == 'POST':
+        email = request.form.get('email', '').strip().lower()
+        new_password = request.form.get('password', '')
+        confirm_password = request.form.get('confirm_password', '')
+        
+        if not email or not new_password:
+            flash("Please provide both email and a new password.", "error")
+            return render_template('reset_password.html', email=email), 400
+            
+        if len(new_password) < 6:
+            flash("Password must be at least 6 characters in length.", "error")
+            return render_template('reset_password.html', email=email), 400
+            
+        if new_password != confirm_password:
+            flash("Password confirmation does not match.", "error")
+            return render_template('reset_password.html', email=email), 400
+            
+        db_path = current_app.config['DATABASE_PATH']
+        user = get_user_by_email(db_path, email)
+        if not user:
+            flash("No account was found with that email address. You can sign up below.", "error")
+            return render_template('reset_password.html', email=email), 404
+            
+        # Update password hash in SQLite
+        update_user_password(db_path, user['id'], generate_password_hash(new_password))
+        flash("Password successfully reset! Please log in with your new password.", "success")
+        return redirect(url_for('auth.login', email=email))
+        
+    return render_template('reset_password.html', email=request.args.get('email', ''))
 
