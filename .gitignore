@@ -1,11 +1,18 @@
+# Environment & Python Cache
 venv/
 .venv/
 env/
 __pycache__/
 *.py[cod]
 *$py.class
-*.so
+*.sqlite3
+database.db
+
+# OS Artifacts
 .DS_Store
+Thumbs.db
+
+# Secrets & Local Runtime
 .env
 instance/
 *.db-journal
