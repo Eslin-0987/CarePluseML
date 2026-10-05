@@ -131,3 +131,12 @@ def create_app(config_class=Config):
         return render_template('about.html', error_title="System Notice (500)", error_msg="An unexpected error occurred while processing your request. Please try again shortly."), 500
 
     return app
+
+# Support WSGI servers (e.g. `gunicorn app:app`) where Python resolves the `app` package directory
+def __getattr__(name):
+    if name == 'app':
+        global _wsgi_app
+        if '_wsgi_app' not in globals():
+            globals()['_wsgi_app'] = create_app()
+        return globals()['_wsgi_app']
+    raise AttributeError(f"module '{__name__}' has no attribute '{name}'")
