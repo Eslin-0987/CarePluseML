@@ -219,3 +219,30 @@ def test_authenticated_assessment_and_result(client, app):
     res_dash = client.get('/dashboard')
     assert res_dash.status_code == 200
     assert b"Total Assessments" in res_dash.data
+
+def test_favicon_and_navbar_auth_state(client):
+    # 1. Favicon is served properly
+    res_fav = client.get('/favicon.ico')
+    assert res_fav.status_code == 200
+
+    # 2. When logged out, /about shows Log In and Sign Up in navbar
+    client.get('/logout')
+    res_guest_about = client.get('/about')
+    assert res_guest_about.status_code == 200
+    assert b"Log In" in res_guest_about.data
+    assert b"Sign Up" in res_guest_about.data
+
+    # 3. When logged in, /about shows Dashboard and Sign Out instead of Log In / Sign Up
+    client.post('/login', data={'email': 'alice@example.com', 'password': 'pass123'})
+    res_auth_about = client.get('/about')
+    assert res_auth_about.status_code == 200
+    assert b"Sign Out" in res_auth_about.data
+    assert b"Dashboard" in res_auth_about.data
+    # Ensure redundant Methodology button is not in header-right
+    assert b'class="btn btn-outline btn-sm">Methodology<' not in res_auth_about.data
+
+    # 4. Visiting /login while already authenticated redirects to dashboard
+    res_login_redirect = client.get('/login', follow_redirects=False)
+    assert res_login_redirect.status_code == 302
+    assert '/view_dashboard' in res_login_redirect.headers['Location']
+

@@ -11,12 +11,18 @@ class Config:
     SECRET_KEY = os.environ.get('SECRET_KEY', 'carepulse-healthcare-ml-secret-key-2026-production')
     
     # JWT Configuration
-    JWT_SECRET_KEY = os.environ.get('JWT_SECRET_KEY', 'carepulse-jwt-super-secret-key-2026')
+    JWT_SECRET_KEY = os.environ.get('JWT_SECRET_KEY', 'healthrecom-jwt-super-secret-key-2026')
     JWT_TOKEN_LOCATION = ['cookies', 'headers']
     JWT_COOKIE_SECURE = os.environ.get('JWT_COOKIE_SECURE', 'False').lower() in ('true', '1')
     JWT_ACCESS_COOKIE_NAME = 'access_token_cookie'
     JWT_COOKIE_CSRF_PROTECT = False  # Keep false for frictionless clean form submissions in V1
+    JWT_COOKIE_SAMESITE = 'Lax'
     JWT_ACCESS_TOKEN_EXPIRES = timedelta(days=30)
+    
+    # Session Configuration
+    SESSION_COOKIE_HTTPONLY = True
+    SESSION_COOKIE_SAMESITE = 'Lax'
+    PERMANENT_SESSION_LIFETIME = timedelta(days=30)
     
     # SQLite Database
     DATABASE_PATH = os.environ.get('DATABASE_PATH', os.path.join(basedir, 'database.db'))
@@ -28,7 +34,7 @@ class Config:
     
     # Flask settings
     DEBUG = os.environ.get('FLASK_DEBUG', 'False').lower() in ('true', '1')
-    APP_NAME = "CarePulse Decision Support"
+    APP_NAME = "HealthRecom Decision Support"
     
     # Healthcare Disclaimer
     DISCLAIMER = (

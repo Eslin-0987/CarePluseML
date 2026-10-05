@@ -20,36 +20,49 @@ EMAIL_REGEX = r'^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$'
 def auth_required(f):
     """
     Decorator to protect web routes.
-    Verifies JWT token in cookies/headers. If invalid or expired,
-    clears stale cookies and redirects to login with an informative flash message.
+    Verifies JWT token or Flask signed session. If invalid or expired,
+    clears stale credentials and redirects to login with an informative flash message.
     """
     @wraps(f)
     def decorated_function(*args, **kwargs):
-        try:
-            verify_jwt_in_request(optional=False)
-            user_id = get_jwt_identity()
-            if not user_id:
-                raise ValueError("No user identity found in token.")
-            
+        from flask import session
+        user = None
+        user_id = session.get('user_id')
+        
+        if not user_id:
+            try:
+                verify_jwt_in_request(optional=True)
+                user_id = get_jwt_identity()
+            except Exception:
+                user_id = None
+                
+        if user_id:
             db_path = current_app.config['DATABASE_PATH']
             user = get_user_by_id(db_path, int(user_id))
-            if not user:
-                raise ValueError("User account no longer exists.")
-                
+            
+        if user:
             g.user = user
+            session['user_id'] = user['id']
             return f(*args, **kwargs)
-        except Exception:
-            # Token missing, invalid, or expired
-            response = make_response(redirect(url_for('auth.login', next=request.path)))
-            unset_jwt_cookies(response)
-            flash("Your session has expired or is invalid. Please log in to continue.", "warning")
-            return response
+
+        # Token / session missing, invalid, or expired
+        response = make_response(redirect(url_for('auth.login', next=request.path)))
+        unset_jwt_cookies(response)
+        session.clear()
+        flash("Your session has expired or is invalid. Please log in to continue.", "warning")
+        return response
             
     return decorated_function
 
 @auth_bp.route('/signup', methods=['GET', 'POST'])
 def signup():
     """User registration flow with server-side validation and password hashing."""
+    from flask import session
+    # If already logged in, do not let another user accidentally overwrite the active session
+    if request.method == 'GET' and (getattr(g, 'user', None) or session.get('user_id')):
+        flash("You are already signed in. Please Sign Out first if you wish to register a different account.", "info")
+        return redirect(url_for('dashboard.view_dashboard'))
+
     if request.method == 'POST':
         name = request.form.get('name', '').strip()
         email = request.form.get('email', '').strip().lower()
@@ -106,11 +119,15 @@ def signup():
             user_id = create_user(db_path, name, email, password_hash, age=age, gender=gender)
             log_activity(db_path, user_id, "User Account Created", "Completed registration.")
             
-            # Generate JWT token
+            # Store in Flask session & generate JWT token
+            session['user_id'] = user_id
+            session['user_name'] = name
+            session.permanent = True
+            
             access_token = create_access_token(identity=str(user_id))
             
-            flash("Account created successfully! Welcome to CarePulse Decision Support.", "success")
-            response = make_response(redirect(url_for('dashboard.dashboard')))
+            flash("Account created successfully! Welcome to HealthRecom Decision Support.", "success")
+            response = make_response(redirect(url_for('dashboard.view_dashboard')))
             set_access_cookies(response, access_token)
             return response
             
@@ -124,6 +141,12 @@ def signup():
 @auth_bp.route('/login', methods=['GET', 'POST'])
 def login():
     """User login flow with password verification and JWT token issuance."""
+    from flask import session
+    # If already logged in, redirect to dashboard rather than re-displaying login
+    if request.method == 'GET' and (getattr(g, 'user', None) or session.get('user_id')):
+        flash("You are already logged in.", "info")
+        return redirect(url_for('dashboard.view_dashboard'))
+
     if request.method == 'POST':
         email = request.form.get('email', '').strip().lower()
         password = request.form.get('password', '')
@@ -140,15 +163,19 @@ def login():
             flash("Invalid email or password. Please try again.", "error")
             return render_template('login.html', email=email), 401
             
-        # Success: generate JWT and set secure cookie
+        # Success: store in session & generate JWT
         user_id = user['id']
+        session['user_id'] = user_id
+        session['user_name'] = user['name']
+        session.permanent = True
+        
         access_token = create_access_token(identity=str(user_id))
         log_activity(db_path, user_id, "User Logged In", "Successful authentication.")
         
         flash(f"Welcome back, {user['name']}!", "success")
         
         # Validate next_url for safe internal redirects
-        target = next_url if next_url and next_url.startswith('/') else url_for('dashboard.dashboard')
+        target = next_url if next_url and next_url.startswith('/') else url_for('dashboard.view_dashboard')
         response = make_response(redirect(target))
         set_access_cookies(response, access_token)
         return response
@@ -158,16 +185,21 @@ def login():
 @auth_bp.route('/logout', methods=['GET', 'POST'])
 def logout():
     """Invalidate authentication state and redirect to login."""
+    from flask import session
     try:
-        verify_jwt_in_request(optional=True)
-        user_id = get_jwt_identity()
+        user_id = session.get('user_id')
+        if not user_id:
+            verify_jwt_in_request(optional=True)
+            user_id = get_jwt_identity()
         if user_id:
             db_path = current_app.config['DATABASE_PATH']
             log_activity(db_path, int(user_id), "User Logged Out", "Session ended.")
     except Exception:
         pass
         
+    session.clear()
     response = make_response(redirect(url_for('auth.login')))
     unset_jwt_cookies(response)
     flash("You have been securely logged out.", "info")
     return response
+

@@ -86,27 +86,40 @@ def create_app(config_class=Config):
 
     @app.before_request
     def load_authenticated_user():
-        """Optionally populate g.user if a valid JWT token is present in request cookies."""
+        """Optionally populate g.user using Flask session or JWT token."""
+        from flask import session
         g.user = None
-        try:
-            verify_jwt_in_request(optional=True)
-            user_id = get_jwt_identity()
-            if user_id:
-                g.user = get_user_by_id(app.config['DATABASE_PATH'], int(user_id))
-        except Exception:
-            g.user = None
+        user_id = session.get('user_id')
+
+        if not user_id:
+            try:
+                verify_jwt_in_request(optional=True)
+                user_id = get_jwt_identity()
+            except Exception:
+                user_id = None
+
+        if user_id:
+            try:
+                user = get_user_by_id(app.config['DATABASE_PATH'], int(user_id))
+                if user:
+                    g.user = user
+                    session['user_id'] = int(user_id)
+            except Exception:
+                g.user = None
 
     @app.context_processor
     def inject_global_variables():
         """Make application metadata and user globally available to templates."""
+        from flask import session
         return {
             'app_name': app.config['APP_NAME'],
             'current_user': getattr(g, 'user', None),
+            'session': session,
             'disclaimer': app.config['DISCLAIMER'],
             'current_year': datetime.now().year
         }
 
-    # 6. Root & Health Check Routes
+    # 6. Root, Health Check & Favicon Routes
     @app.route('/')
     def index():
         """Root route: Redirect to dashboard if authenticated, otherwise to login."""
@@ -119,6 +132,13 @@ def create_app(config_class=Config):
         """Health check endpoint for Render monitoring."""
         from flask import jsonify
         return jsonify({"status": "healthy", "service": "HealthRecom"}), 200
+
+    @app.route('/favicon.ico')
+    def favicon():
+        """Serve favicon directly from static folder."""
+        from flask import send_from_directory
+        return send_from_directory(app.static_folder, 'favicon.ico', mimetype='image/vnd.microsoft.icon')
+
 
     # 7. Global Error Handlers
     @app.errorhandler(404)

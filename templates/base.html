@@ -11,6 +11,11 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
   
+  <!-- Favicon for Browser Tabs & Bookmarks -->
+  <link rel="icon" type="image/png" sizes="32x32" href="{{ url_for('static', filename='images/favicon.png') }}">
+  <link rel="icon" type="image/x-icon" href="{{ url_for('static', filename='favicon.ico') }}">
+  <link rel="shortcut icon" href="{{ url_for('static', filename='favicon.ico') }}">
+  
   <!-- Master Design System & Typography Stylesheet -->
   <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}">
   <link rel="stylesheet" href="{{ url_for('static', filename='css/base.css') }}">
@@ -91,7 +96,6 @@
         </div>
 
         <div class="header-right">
-          <a href="{{ url_for('dashboard.about') }}" class="btn btn-outline btn-sm">Methodology</a>
           <a href="{{ url_for('prediction.assessment') }}" class="btn btn-primary btn-sm">
             <svg style="width: 16px; height: 16px;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
             <span>Start Assessment</span>
@@ -154,8 +158,14 @@
         <a href="{{ url_for('dashboard.about') }}" class="nav-item {% if request.endpoint in ['dashboard.about', 'recommendation.about'] %}active{% endif %}">Methodology & System</a>
         
         <div class="nav-divider"></div>
-        <a href="{{ url_for('auth.login') }}" class="nav-item {% if request.endpoint == 'auth.login' %}active{% endif %}">Log In</a>
-        <a href="{{ url_for('auth.signup') }}" class="btn btn-primary btn-sm">Sign Up</a>
+        {% if current_user or session.get('user_id') %}
+          <a href="{{ url_for('dashboard.view_dashboard') }}" class="nav-item">Dashboard</a>
+          <a href="{{ url_for('prediction.assessment') }}" class="btn btn-primary btn-sm">+ Start Assessment</a>
+          <a href="{{ url_for('auth.logout') }}" class="nav-item logout-link" style="color: #991B1B; font-weight: 600;">Sign Out</a>
+        {% else %}
+          <a href="{{ url_for('auth.login') }}" class="nav-item {% if request.endpoint == 'auth.login' %}active{% endif %}">Log In</a>
+          <a href="{{ url_for('auth.signup') }}" class="btn btn-primary btn-sm">Sign Up</a>
+        {% endif %}
       </nav>
     </header>
 
