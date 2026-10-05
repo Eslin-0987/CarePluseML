@@ -9,7 +9,7 @@
 {% block guest_content %}
 <div class="auth-card-container">
   <div class="auth-header">
-    <img src="{{ url_for('static', filename='images/logo.png') }}" alt="CarePulse Logo" class="auth-brand-logo">
+    <img src="{{ url_for('static', filename='images/favicon.png') }}" alt="HealthRecom Logo" class="auth-brand-logo" style="width: 48px; height: 48px; border-radius: 10px; margin-bottom: 8px;">
     <h1 class="auth-title">Welcome Back</h1>
     <p class="auth-subtitle">Access your personalized healthcare ML decision-support portal</p>
   </div>
@@ -47,9 +47,31 @@
     </button>
   </form>
 
+  <!-- Quick Access Credentials Helper -->
+  <div style="margin-top: 16px; padding: 12px 14px; background: #F0FDF4; border: 1px solid #BBF7D0; border-radius: 8px; font-size: 13px; color: #166534; display: flex; justify-content: space-between; align-items: center;">
+    <div>
+      <strong>Default Profile:</strong> divyaeslin@gmail.com<br>
+      <span style="color: #15803D;">Password: <code>Password123!</code></span>
+    </div>
+    <button type="button" class="btn btn-outline btn-sm" id="fillDemoCredentialsBtn" style="background: #FFFFFF; font-size: 12px; padding: 6px 12px; cursor: pointer; border-color: #86EFAC;">Auto-Fill</button>
+  </div>
+
   <div class="auth-footer" style="display: flex; justify-content: space-between; align-items: center; margin-top: 18px; font-size: 13px;">
     <a href="{{ url_for('auth.reset_password') }}" style="color: var(--text-secondary); text-decoration: underline;">Forgot password?</a>
     <a href="{{ url_for('auth.signup') }}" style="font-weight: 600;">Create new profile &rarr;</a>
   </div>
 </div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+  document.getElementById('fillDemoCredentialsBtn')?.addEventListener('click', function() {
+    var emailField = document.getElementById('email');
+    var passwordField = document.getElementById('password');
+    if (emailField && passwordField) {
+      emailField.value = 'divyaeslin@gmail.com';
+      passwordField.value = 'Password123!';
+    }
+  });
+</script>
 {% endblock %}

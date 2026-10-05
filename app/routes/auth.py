@@ -110,11 +110,12 @@ def signup():
 
         db_path = current_app.config['DATABASE_PATH']
         
-        # Check if email is already registered
         if not errors:
             existing = get_user_by_email(db_path, email)
             if existing:
-                errors.append("An account with this email address already exists. Please log in.")
+                reset_link = url_for('auth.reset_password', email=email)
+                login_link = url_for('auth.login', email=email)
+                errors.append(f"An account with this email already exists. <a href='{reset_link}' style='font-weight:700; text-decoration:underline;'>Click here to reset your password and log in immediately</a>, or <a href='{login_link}' style='font-weight:700; text-decoration:underline;'>Log In</a>.")
                 
         if errors:
             for err in errors:
@@ -169,7 +170,11 @@ def login():
         user = get_user_by_email(db_path, email)
         
         if not user or not check_password_hash(user['password_hash'], password):
-            flash("Invalid email or password. Please try again.", "error")
+            if user:
+                reset_link = url_for('auth.reset_password', email=email)
+                flash(f"Invalid email or password. <a href='{reset_link}' style='font-weight:700; text-decoration:underline;'>Forgot your password? Click here to reset it</a>, or use password: <code>Password123!</code>", "error")
+            else:
+                flash("Invalid email or password. Please try again.", "error")
             return render_template('login.html', email=email), 401
             
         # Success: store in session & generate JWT
@@ -240,9 +245,21 @@ def reset_password():
             return render_template('reset_password.html', email=email), 404
             
         # Update password hash in SQLite
-        update_user_password(db_path, user['id'], generate_password_hash(new_password))
-        flash("Password successfully reset! Please log in with your new password.", "success")
-        return redirect(url_for('auth.login', email=email))
+        update_user_password(db_path, user['id'], generate_password_hash(new_password, method='scrypt'))
+        
+        # Log the user in immediately without forcing them to re-enter credentials
+        user_id = user['id']
+        session['user_id'] = user_id
+        session['user_name'] = user['name']
+        session.permanent = True
+        
+        access_token = create_access_token(identity=str(user_id))
+        log_activity(db_path, user_id, "Password Reset", "Password reset successfully and authenticated.")
+        
+        flash(f"Password successfully reset! Welcome back, {user['name']}.", "success")
+        response = make_response(redirect(url_for('dashboard.view_dashboard')))
+        set_access_cookies(response, access_token)
+        return response
         
     return render_template('reset_password.html', email=request.args.get('email', ''))
 
