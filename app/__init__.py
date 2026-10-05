@@ -106,13 +106,19 @@ def create_app(config_class=Config):
             'current_year': datetime.now().year
         }
 
-    # 6. Root Route
+    # 6. Root & Health Check Routes
     @app.route('/')
     def index():
         """Root route: Redirect to dashboard if authenticated, otherwise to login."""
         if getattr(g, 'user', None):
             return redirect(url_for('dashboard.dashboard'))
         return redirect(url_for('auth.login'))
+
+    @app.route('/healthz')
+    def healthz():
+        """Health check endpoint for Render monitoring."""
+        from flask import jsonify
+        return jsonify({"status": "healthy", "service": "HealthRecom"}), 200
 
     # 7. Global Error Handlers
     @app.errorhandler(404)
