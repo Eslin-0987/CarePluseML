@@ -41,3 +41,26 @@ def dashboard():
         is_new_user=is_new_user,
         disclaimer=current_app.config['DISCLAIMER']
     )
+
+@dashboard_bp.route('/view_dashboard')
+@auth_required
+def view_dashboard():
+    """Alias for dashboard view."""
+    return dashboard()
+
+@dashboard_bp.route('/about')
+@dashboard_bp.route('/methodology')
+def about():
+    """
+    Publicly accessible methodology and scientific specifications page.
+    No login or signup required.
+    """
+    user = getattr(g, 'user', None)
+    return render_template(
+        'about.html',
+        user=user,
+        current_user=user,
+        disclaimer=current_app.config['DISCLAIMER']
+    )
+
+

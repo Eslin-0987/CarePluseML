@@ -1,166 +1,196 @@
-/* Dashboard Styles */
+/* ==========================================================================
+   HealthRecom ML Decision Support System - Dashboard Styles
+   Crisp Clinical Metrics, 24px Card Padding, Uniform 20-24px Grid Spacing
+   ========================================================================== */
 
+/* 1. Dashboard Stats Grid */
 .dashboard-grid-stats {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-  gap: 20px;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: var(--grid-gap, 24px);
   margin-bottom: 28px;
 }
 
 .stat-card {
-  background-color: var(--card);
-  border: 1px solid var(--border);
-  border-radius: var(--radius-md);
-  padding: 20px;
+  background-color: var(--card-bg, #FFFFFF);
+  border: 1px solid var(--border-color, #D9E4EC);
+  border-radius: var(--radius-card, 8px);
+  padding: var(--card-padding, 24px 28px);
   display: flex;
   flex-direction: column;
-  box-shadow: var(--shadow-sm);
-  transition: var(--transition);
+  box-shadow: var(--shadow-clinical, 0 1px 3px rgba(32, 79, 123, 0.05), 0 4px 6px -2px rgba(32, 79, 123, 0.02));
+  transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
 }
 
 .stat-card:hover {
   transform: translateY(-2px);
-  box-shadow: var(--shadow-md);
-  border-color: var(--light-blue);
+  box-shadow: var(--shadow-hover, 0 4px 12px rgba(32, 79, 123, 0.08));
+  border-color: var(--light-blue, #6094B8);
 }
 
 .stat-header {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  color: var(--text-muted);
+  color: var(--text-secondary, #64748B);
   font-size: 13px;
   font-weight: 600;
-  margin-bottom: 12px;
+  letter-spacing: 0.02em;
+  margin-bottom: 14px;
 }
 
 .stat-icon {
-  width: 36px;
-  height: 36px;
-  border-radius: var(--radius-sm);
-  background-color: var(--primary-light);
-  color: var(--primary);
+  width: 40px;
+  height: 40px;
+  border-radius: 8px;
+  background-color: var(--primary-light, #EBF3F9);
+  color: var(--primary, #204F7B);
   display: flex;
   align-items: center;
   justify-content: center;
+  flex-shrink: 0;
 }
 
 .stat-icon.green {
-  background-color: var(--secondary-light);
-  color: var(--secondary);
+  background-color: var(--secondary-light, #F0F7ED);
+  color: var(--secondary, #60984D);
 }
 
 .stat-value {
-  font-size: 26px;
+  font-family: var(--font-primary, 'Inter', sans-serif);
+  font-size: 30px;
   font-weight: 700;
-  color: var(--primary);
+  color: var(--primary, #204F7B);
   line-height: 1.2;
 }
 
 .stat-subtext {
-  font-size: 12px;
-  color: var(--text-muted);
-  margin-top: 6px;
+  font-size: 13px;
+  color: var(--text-secondary, #64748B);
+  margin-top: 8px;
+  font-weight: 500;
 }
 
+/* 2. Main Two-Column Layout */
 .dashboard-two-column {
   display: grid;
   grid-template-columns: 2fr 1fr;
-  gap: 24px;
+  gap: var(--grid-gap, 24px);
   margin-bottom: 28px;
 }
 
+/* 3. Clinical Vitals Grid */
 .vitals-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
-  gap: 12px;
-  margin-top: 8px;
+  grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+  gap: 14px;
+  margin-top: 12px;
 }
 
 .vital-item {
-  background-color: #FAFCFE;
-  border: 1px solid var(--border);
-  border-radius: var(--radius-sm);
-  padding: 12px;
+  background-color: #F8FAFC;
+  border: 1px solid var(--border-color, #D9E4EC);
+  border-radius: var(--radius-card, 8px);
+  padding: 14px 16px;
+  transition: border-color 0.15s ease;
+}
+
+.vital-item:hover {
+  border-color: var(--light-blue, #6094B8);
 }
 
 .vital-label {
-  font-size: 11px;
+  font-size: 12px;
   text-transform: uppercase;
-  letter-spacing: 0.05em;
-  color: var(--text-muted);
+  letter-spacing: 0.04em;
+  color: var(--text-secondary, #64748B);
   font-weight: 600;
 }
 
 .vital-value {
-  font-size: 16px;
+  font-size: 18px;
   font-weight: 700;
-  color: var(--text);
+  color: var(--primary, #204F7B);
   margin-top: 4px;
 }
 
 .vital-unit {
-  font-size: 11px;
-  color: var(--text-light);
-  font-weight: normal;
+  font-size: 12px;
+  color: var(--text-secondary, #64748B);
+  font-weight: 500;
 }
 
-/* History Table on Dashboard */
+/* 4. Clinical History Table */
 .table-responsive {
   width: 100%;
   overflow-x: auto;
-  border-radius: var(--radius-sm);
+  border: 1px solid var(--border-color, #D9E4EC);
+  border-radius: var(--radius-card, 8px);
+  background-color: #FFFFFF;
 }
 
 .data-table {
   width: 100%;
-  border-collapse: collapse;
+  border-collapse: separate;
+  border-spacing: 0;
   text-align: left;
-  font-size: 14px;
 }
 
 .data-table th {
-  background-color: #F8FAFC;
-  padding: 12px 16px;
+  background-color: #FAFCFE;
+  padding: 14px 18px;
   font-weight: 600;
-  color: var(--text-muted);
-  border-bottom: 1px solid var(--border);
-  font-size: 12px;
+  color: var(--primary, #204F7B);
+  border-bottom: 1px solid var(--border-color, #D9E4EC);
+  font-size: 13px;
   text-transform: uppercase;
-  letter-spacing: 0.04em;
+  letter-spacing: 0.03em;
 }
 
 .data-table td {
-  padding: 14px 16px;
-  border-bottom: 1px solid var(--border);
+  padding: 14px 18px;
+  border-bottom: 1px solid var(--border-color, #D9E4EC);
   vertical-align: middle;
+  font-size: 14px;
+  color: var(--text-main, #1F2937);
 }
 
-.data-table tr:hover td {
-  background-color: #F8FAFD;
+.data-table tbody tr:last-child td {
+  border-bottom: none;
 }
 
-/* Activity Feed */
+.data-table tbody tr:nth-child(even) td {
+  background-color: #F8FAFC;
+}
+
+.data-table tbody tr:hover td {
+  background-color: #F1F6FA;
+}
+
+/* 5. Activity Feed */
 .activity-list {
   display: flex;
   flex-direction: column;
-  gap: 14px;
+  gap: 16px;
+  margin-top: 8px;
 }
 
 .activity-item {
   display: flex;
-  gap: 12px;
-  font-size: 13px;
+  gap: 14px;
+  font-size: 14px;
   position: relative;
+  align-items: flex-start;
 }
 
 .activity-dot {
-  width: 8px;
-  height: 8px;
+  width: 10px;
+  height: 10px;
   border-radius: 50%;
-  background-color: var(--primary);
-  margin-top: 6px;
+  background-color: var(--primary, #204F7B);
+  margin-top: 5px;
   flex-shrink: 0;
+  box-shadow: 0 0 0 3px var(--primary-light, #EBF3F9);
 }
 
 .activity-content {
@@ -169,13 +199,14 @@
 
 .activity-title {
   font-weight: 600;
-  color: var(--text);
+  color: var(--text-main, #1F2937);
+  line-height: 1.4;
 }
 
 .activity-time {
-  font-size: 11px;
-  color: var(--text-light);
-  margin-top: 2px;
+  font-size: 12px;
+  color: var(--text-secondary, #64748B);
+  margin-top: 3px;
 }
 
 @media (max-width: 950px) {

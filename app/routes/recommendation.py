@@ -106,6 +106,7 @@ def profile():
     )
 
 @recommendation_bp.route('/about')
+@recommendation_bp.route('/methodology')
 def about():
     """
     Educational Methodology & Machine Learning Architecture page.

@@ -3,64 +3,75 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>{% block title %}{{ app_name }}{% endblock %} | Healthcare Decision Support</title>
-  <meta name="description" content="Personalized Healthcare and Medicine Recommendation Decision Support System using Machine Learning.">
+  <title>{% block title %}HealthRecom{% endblock %} | Healthcare Decision Support</title>
+  <meta name="description" content="HealthRecom: Personalized Healthcare and Medicine Recommendation Decision Support System using Machine Learning.">
   
   <!-- Modern Inter & Roboto Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
   
-  <!-- Base Design System -->
+  <!-- Master Design System & Typography Stylesheet -->
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}">
   <link rel="stylesheet" href="{{ url_for('static', filename='css/base.css') }}">
   {% block extra_css %}{% endblock %}
 </head>
 <body>
-  {% if current_user %}
+  {% if current_user or session.get('user_id') %}
   <div class="app-shell">
-    <!-- Desktop & Mobile Sidebar -->
+    <!-- Desktop & Mobile Clinical Sidebar -->
     <aside class="app-sidebar" id="appSidebar">
       <div class="sidebar-header">
-        <img src="{{ url_for('static', filename='images/logo.png') }}" alt="CarePulse Logo" class="sidebar-logo">
+        <a href="{{ url_for('dashboard.view_dashboard') }}" style="display: flex; align-items: center; gap: 10px; text-decoration: none;">
+          <img src="{{ url_for('static', filename='images/logo.png') }}" alt="HealthRecom Logo" class="sidebar-logo">
+          <span style="font-size: 18px; font-weight: 700; color: var(--primary);">HealthRecom</span>
+        </a>
       </div>
 
       <nav class="sidebar-nav">
-        <a href="{{ url_for('dashboard.dashboard') }}" class="nav-item {% if request.endpoint == 'dashboard.dashboard' %}active{% endif %}">
-          <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/></svg>
+        <!-- Public link: Always visible to everyone without login/signup -->
+        <a href="{{ url_for('dashboard.about') }}" class="nav-item {% if request.endpoint in ['dashboard.about', 'recommendation.about'] %}active{% endif %}">
+          <svg style="width: 20px; height: 20px;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+          Methodology & System
+        </a>
+
+        <!-- Authenticated clinical routes -->
+        <a href="{{ url_for('dashboard.view_dashboard') }}" class="nav-item {% if request.endpoint in ['dashboard.dashboard', 'dashboard.view_dashboard'] %}active{% endif %}">
+          <svg style="width: 20px; height: 20px;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/></svg>
           Dashboard
         </a>
         <a href="{{ url_for('prediction.assessment') }}" class="nav-item {% if request.endpoint == 'prediction.assessment' %}active{% endif %}">
-          <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+          <svg style="width: 20px; height: 20px;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
           New Assessment
         </a>
         <a href="{{ url_for('prediction.history') }}" class="nav-item {% if request.endpoint == 'prediction.history' %}active{% endif %}">
-          <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+          <svg style="width: 20px; height: 20px;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
           History
         </a>
         <a href="{{ url_for('recommendation.profile') }}" class="nav-item {% if request.endpoint == 'recommendation.profile' %}active{% endif %}">
-          <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg>
+          <svg style="width: 20px; height: 20px;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg>
           Profile
         </a>
-        <a href="{{ url_for('recommendation.about') }}" class="nav-item {% if request.endpoint == 'recommendation.about' %}active{% endif %}">
-          <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
-          About & Methodology
+        <div class="nav-divider" style="margin: 12px 16px; width: auto; height: 1px; background: var(--border-color);"></div>
+        <a href="{{ url_for('auth.logout') }}" class="nav-item logout-link" style="color: #991B1B;">
+          <svg style="width: 20px; height: 20px;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/></svg>
+          Sign Out
         </a>
       </nav>
 
       <div class="sidebar-footer">
-        <div class="disclaimer-card">
-          <strong>Decision Support Notice</strong>
-          For educational & research use. Not a clinical diagnosis or medical prescription.
+        <div class="disclaimer-card" style="font-size: 11px; padding: 10px; background: #F8FAFC; border: 1px solid var(--border-color); border-radius: 6px;">
+          <strong style="display: block; color: var(--primary); margin-bottom: 2px;">Decision Support Notice</strong>
+          Strictly educational & research. Not medical advice.
         </div>
-        <div class="user-mini-profile">
+        {% if current_user %}
+        <div class="user-mini-profile" style="display: flex; align-items: center; justify-content: space-between; margin-top: 12px;">
           <div style="min-width: 0;">
-            <div class="user-info-text">{{ current_user.name }}</div>
-            <span class="user-role-badge">Verified User</span>
+            <div class="user-info-text" style="font-weight: 600; font-size: 13px; color: var(--text-main);">{{ current_user.name }}</div>
+            <span class="badge badge-secondary" style="font-size: 11px; padding: 2px 6px;">Verified Account</span>
           </div>
-          <a href="{{ url_for('auth.logout') }}" title="Logout" style="color: var(--text-muted); padding: 4px;">
-            <svg style="width: 18px; height: 18px;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/></svg>
-          </a>
         </div>
+        {% endif %}
       </div>
     </aside>
 
@@ -73,19 +84,17 @@
           </button>
           
           <nav class="breadcrumbs" aria-label="Breadcrumb">
-            <a href="{{ url_for('dashboard.dashboard') }}">Home</a>
+            <a href="{{ url_for('dashboard.view_dashboard') }}">Home</a>
             <span>/</span>
             <span class="current">{% block breadcrumb %}Dashboard{% endblock %}</span>
           </nav>
         </div>
 
         <div class="header-right">
+          <a href="{{ url_for('dashboard.about') }}" class="btn btn-outline btn-sm">Methodology</a>
           <a href="{{ url_for('prediction.assessment') }}" class="btn btn-primary btn-sm">
             <svg style="width: 16px; height: 16px;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
             <span>Start Assessment</span>
-          </a>
-          <a href="{{ url_for('recommendation.profile') }}" class="badge badge-neutral" style="text-decoration: none;">
-            {{ current_user.name.split()[0] }}
           </a>
         </div>
       </header>
@@ -121,30 +130,36 @@
       <!-- Footer -->
       <footer class="app-footer">
         <div>
-          <strong>CarePulse ML Decision Support System</strong> &copy; {{ current_year }} &middot; Educational & Research Decision Support
+          <strong>HealthRecom ML Decision Support System</strong> &copy; {{ current_year }} &middot; Educational & Research Decision Support
         </div>
         <div>
-          <a href="{{ url_for('recommendation.about') }}" style="color: var(--text-muted); margin-right: 16px;">Methodology & Disclaimers</a>
+          <a href="{{ url_for('dashboard.about') }}" style="color: var(--text-secondary); margin-right: 16px;">Methodology & Architecture</a>
           <span style="color: var(--text-light);">V1.0 (Production Ready)</span>
         </div>
       </footer>
     </div>
   </div>
   {% else %}
-  <!-- Minimalist Guest Layout for Auth & Public About -->
-  <div style="min-height: 100vh; display: flex; flex-direction: column;">
-    <header style="padding: 16px 32px; background: #fff; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center;">
-      <a href="{{ url_for('auth.login') }}">
-        <img src="{{ url_for('static', filename='images/logo.png') }}" alt="CarePulse Logo" style="height: 38px;">
+  <!-- Public Guest Layout for Methodology & Auth -->
+  <div style="min-height: 100vh; display: flex; flex-direction: column; background-color: var(--bg);">
+    <header style="padding: 16px 32px; background: #FFFFFF; border-bottom: 1px solid var(--border-color); display: flex; justify-content: space-between; align-items: center; box-shadow: var(--shadow-clinical);">
+      <a href="{{ url_for('dashboard.about') }}" style="display: flex; align-items: center; gap: 10px; text-decoration: none;">
+        <img src="{{ url_for('static', filename='images/logo.png') }}" alt="HealthRecom Logo" style="height: 38px;">
+        <span style="font-size: 19px; font-weight: 700; color: var(--primary); letter-spacing: -0.01em;">HealthRecom</span>
       </a>
-      <div>
-        <a href="{{ url_for('recommendation.about') }}" style="font-size: 14px; font-weight: 500; color: var(--text-muted); margin-right: 16px;">Methodology</a>
-        <a href="{{ url_for('auth.login') }}" class="btn btn-secondary btn-sm" style="margin-right: 8px;">Log In</a>
+
+      <!-- Universal Public Navigation Links -->
+      <nav class="nav-links">
+        <!-- Public link: Always visible to everyone without login/signup -->
+        <a href="{{ url_for('dashboard.about') }}" class="nav-item {% if request.endpoint in ['dashboard.about', 'recommendation.about'] %}active{% endif %}">Methodology & System</a>
+        
+        <div class="nav-divider"></div>
+        <a href="{{ url_for('auth.login') }}" class="nav-item {% if request.endpoint == 'auth.login' %}active{% endif %}">Log In</a>
         <a href="{{ url_for('auth.signup') }}" class="btn btn-primary btn-sm">Sign Up</a>
-      </div>
+      </nav>
     </header>
 
-    <main style="flex: 1; display: flex; align-items: center; justify-content: center; padding: 32px 16px;">
+    <main style="flex: 1; padding: 32px 16px; width: 100%;">
       {% with messages = get_flashed_messages(with_categories=true) %}
         {% if messages %}
           <div style="position: fixed; top: 76px; left: 50%; transform: translateX(-50%); width: 90%; max-width: 520px; z-index: 999;">
@@ -158,11 +173,14 @@
         {% endif %}
       {% endwith %}
 
-      {% block guest_content %}{% endblock %}
+      <!-- Guest content container: renders guest_content or falls back to content block -->
+      {% block guest_content %}
+        {{ self.content() }}
+      {% endblock %}
     </main>
 
-    <footer style="padding: 20px 32px; background: #fff; border-top: 1px solid var(--border); text-align: center; font-size: 12px; color: var(--text-muted);">
-      CarePulse ML Decision Support System &copy; {{ current_year }} &middot; Strictly for Educational & Research Use &middot; Not a Clinical Diagnosis
+    <footer style="padding: 20px 32px; background: #FFFFFF; border-top: 1px solid var(--border-color); text-align: center; font-size: 13px; color: var(--text-secondary);">
+      HealthRecom ML Decision Support System &copy; {{ current_year }} &middot; Strictly for Educational & Research Use &middot; Not a Clinical Diagnosis
     </footer>
   </div>
   {% endif %}

@@ -1,61 +1,92 @@
-/* Assessment Page Styles */
+/* ==========================================================================
+   HealthRecom ML Decision Support System - Assessment Page Styles
+   Uniform 44px Form Inputs, 8px Border Radius, Crisp #D9E4EC Borders,
+   and Clean Multi-Column Symptom Checklist with Visual Selection State
+   ========================================================================== */
 
 .assessment-container {
   display: flex;
   flex-direction: column;
-  gap: 28px;
+  gap: var(--grid-gap, 24px);
+  max-width: 100%;
 }
 
+/* 1. Step Sections & Clinical Box Elevations */
 .step-section {
-  background-color: var(--card);
-  border: 1px solid var(--border);
-  border-radius: var(--radius-md);
-  padding: 28px;
-  box-shadow: var(--shadow-sm);
+  background-color: var(--card-bg, #FFFFFF);
+  border: 1px solid var(--border-color, #D9E4EC);
+  border-radius: var(--radius-card, 8px);
+  padding: var(--card-padding, 24px 28px);
+  box-shadow: var(--shadow-clinical, 0 1px 3px rgba(32, 79, 123, 0.05), 0 4px 6px -2px rgba(32, 79, 123, 0.02));
 }
 
 .step-header {
   display: flex;
   align-items: flex-start;
   gap: 16px;
-  margin-bottom: 24px;
+  margin-bottom: 22px;
   padding-bottom: 16px;
-  border-bottom: 1px solid var(--border);
+  border-bottom: 1px solid var(--border-color, #D9E4EC);
 }
 
 .step-number {
-  width: 36px;
-  height: 36px;
-  background-color: var(--primary-light);
-  color: var(--primary);
+  width: 38px;
+  height: 38px;
+  background-color: var(--primary-light, #EBF3F9);
+  color: var(--primary, #204F7B);
   font-weight: 700;
   font-size: 15px;
-  border-radius: 50%;
+  border-radius: 8px;
   display: flex;
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
+  border: 1px solid rgba(32, 79, 123, 0.15);
 }
 
 .step-title-group h2 {
-  font-size: 18px;
-  font-weight: 700;
-  color: var(--primary);
+  font-size: 22px;
+  font-weight: 600;
+  color: var(--primary, #204F7B);
+  line-height: 1.3;
+  margin-bottom: 2px;
 }
 
 .step-title-group p {
-  font-size: 13px;
-  color: var(--text-muted);
-  margin-top: 2px;
+  font-size: 14px;
+  color: var(--text-secondary, #64748B);
+  margin-bottom: 0;
 }
 
+/* 2. Patient Demographics & Vitals Inputs */
 .vitals-form-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-  gap: 20px;
+  gap: var(--grid-gap, 24px);
 }
 
-/* Symptoms Search & Category Tabs */
+.vitals-form-grid .form-control,
+.vitals-form-grid input,
+.vitals-form-grid select {
+  height: var(--input-height, 44px);
+  padding: 0 12px;
+  border: 1px solid var(--border-color, #D9E4EC);
+  border-radius: var(--radius-input, 8px);
+  font-size: 14px;
+  color: var(--text-main, #1F2937);
+  background-color: #FFFFFF;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.vitals-form-grid .form-control:focus,
+.vitals-form-grid input:focus,
+.vitals-form-grid select:focus {
+  outline: none;
+  border-color: var(--primary, #204F7B);
+  box-shadow: 0 0 0 3px rgba(32, 79, 123, 0.12);
+}
+
+/* 3. Symptoms Toolbar, Filter Chips & Live Search */
 .symptoms-toolbar {
   display: flex;
   flex-direction: column;
@@ -69,18 +100,19 @@
 
 .symptoms-search-input {
   width: 100%;
-  padding: 12px 16px 12px 44px;
-  font-size: 15px;
-  border: 1px solid var(--border);
-  border-radius: var(--radius-sm);
-  background-color: #FAFCFE;
+  height: var(--input-height, 44px);
+  padding: 0 16px 0 44px;
+  font-size: 14px;
+  border: 1px solid var(--border-color, #D9E4EC);
+  border-radius: var(--radius-input, 8px);
+  background-color: #FFFFFF;
   font-family: inherit;
-  transition: var(--transition);
+  color: var(--text-main, #1F2937);
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
 }
 
 .symptoms-search-input:focus {
-  background-color: #ffffff;
-  border-color: var(--primary);
+  border-color: var(--primary, #204F7B);
   box-shadow: 0 0 0 3px rgba(32, 79, 123, 0.12);
   outline: none;
 }
@@ -92,10 +124,10 @@
   transform: translateY(-50%);
   width: 20px;
   height: 20px;
-  color: var(--text-muted);
+  color: var(--text-secondary, #64748B);
+  pointer-events: none;
 }
 
-/* Category Filter Chips */
 .category-filter-bar {
   display: flex;
   gap: 8px;
@@ -105,45 +137,49 @@
 }
 
 .category-filter-btn {
-  background-color: #F1F5F9;
-  border: 1px solid transparent;
-  color: var(--text-muted);
+  background-color: #F8FAFC;
+  border: 1px solid var(--border-color, #D9E4EC);
+  color: var(--text-secondary, #64748B);
   padding: 6px 14px;
-  border-radius: 999px;
+  border-radius: 8px;
   font-size: 13px;
   font-weight: 500;
   cursor: pointer;
   white-space: nowrap;
-  transition: var(--transition);
+  transition: all 0.15s ease;
 }
 
 .category-filter-btn:hover {
-  background-color: #E2E8F0;
-  color: var(--text);
+  background-color: #EBF3F9;
+  color: var(--primary, #204F7B);
+  border-color: var(--light-blue, #6094B8);
 }
 
 .category-filter-btn.active {
-  background-color: var(--primary);
-  color: #ffffff;
+  background-color: var(--primary, #204F7B);
+  border-color: var(--primary, #204F7B);
+  color: #FFFFFF;
+  font-weight: 600;
 }
 
-/* Selected Symptoms Tray */
+/* 4. Active Selected Symptoms Tray */
 .selected-tray-container {
-  background-color: var(--primary-light);
-  border: 1px solid #D1E5F4;
-  border-radius: var(--radius-sm);
-  padding: 14px 18px;
-  margin-bottom: 20px;
+  background-color: var(--primary-light, #EBF3F9);
+  border: 1px solid #C4DCEE;
+  border-radius: var(--radius-card, 8px);
+  padding: 16px 20px;
+  margin-bottom: 24px;
 }
 
 .selected-tray-header {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-bottom: 10px;
+  margin-bottom: 12px;
   font-size: 13px;
   font-weight: 600;
-  color: var(--primary);
+  color: var(--primary, #204F7B);
+  letter-spacing: 0.01em;
 }
 
 .selected-chips-list {
@@ -153,35 +189,38 @@
 }
 
 .selected-chip {
-  background-color: #ffffff;
+  background-color: #FFFFFF;
   border: 1px solid #B0D3ED;
-  color: var(--primary);
-  font-size: 12px;
+  color: var(--primary, #204F7B);
+  font-size: 13px;
   font-weight: 600;
-  padding: 4px 10px;
-  border-radius: 999px;
+  padding: 5px 12px;
+  border-radius: 8px;
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+  box-shadow: 0 1px 2px rgba(32, 79, 123, 0.06);
 }
 
 .selected-chip-remove {
   background: none;
   border: none;
-  color: var(--text-muted);
+  color: var(--text-secondary, #64748B);
   cursor: pointer;
-  font-size: 14px;
+  font-size: 16px;
   line-height: 1;
   display: flex;
   align-items: center;
+  padding: 2px;
+  border-radius: 4px;
 }
 
 .selected-chip-remove:hover {
-  color: var(--error);
+  color: #DC2626;
+  background-color: #FEE2E2;
 }
 
-/* Symptoms Grid */
+/* 5. Uniform Grid Symptoms Checklist with Scrollable Container */
 .symptom-category-block {
   margin-bottom: 24px;
 }
@@ -189,11 +228,20 @@
 .symptom-category-title {
   font-size: 15px;
   font-weight: 700;
-  color: var(--text);
+  color: var(--primary, #204F7B);
   margin-bottom: 12px;
   display: flex;
   align-items: center;
   gap: 8px;
+}
+
+.symptoms-scroll-container {
+  max-height: 480px;
+  overflow-y: auto;
+  padding: 4px;
+  border: 1px solid var(--border-color, #D9E4EC);
+  border-radius: var(--radius-card, 8px);
+  background-color: #FAFCFE;
 }
 
 .symptoms-checkbox-grid {
@@ -205,133 +253,139 @@
 .symptom-checkbox-card {
   display: flex;
   align-items: center;
-  gap: 10px;
-  padding: 10px 14px;
-  background-color: #FAFCFE;
-  border: 1px solid var(--border);
-  border-radius: var(--radius-sm);
+  gap: 12px;
+  padding: 12px 14px;
+  background-color: #FFFFFF;
+  border: 1px solid var(--border-color, #D9E4EC);
+  border-radius: var(--radius-card, 8px);
   cursor: pointer;
-  transition: var(--transition);
+  transition: all 0.15s ease;
   user-select: none;
 }
 
 .symptom-checkbox-card:hover {
   background-color: #FFFFFF;
-  border-color: var(--light-blue);
+  border-color: var(--light-blue, #6094B8);
+  box-shadow: 0 2px 4px rgba(32, 79, 123, 0.05);
 }
 
 .symptom-checkbox-card input[type="checkbox"] {
   width: 18px;
   height: 18px;
-  accent-color: var(--primary);
+  accent-color: var(--primary, #204F7B);
   cursor: pointer;
+  flex-shrink: 0;
 }
 
 .symptom-checkbox-card.checked {
-  background-color: var(--primary-light);
-  border-color: var(--primary);
+  background-color: var(--primary-light, #EBF3F9);
+  border-color: var(--primary, #204F7B);
 }
 
 .symptom-checkbox-card.checked .symptom-name {
   font-weight: 600;
-  color: var(--primary);
+  color: var(--primary, #204F7B);
 }
 
 .symptom-name {
-  font-size: 13px;
-  color: var(--text);
-  line-height: 1.3;
+  font-size: 14px;
+  color: var(--text-main, #1F2937);
+  line-height: 1.35;
 }
 
-/* Model Selection Cards */
+/* 6. Machine Learning Model Selection Cards */
 .model-selection-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 20px;
+  gap: var(--grid-gap, 24px);
 }
 
 .model-card {
-  border: 2px solid var(--border);
-  border-radius: var(--radius-md);
-  padding: 20px;
-  background-color: #FAFCFE;
+  border: 1px solid var(--border-color, #D9E4EC);
+  border-radius: var(--radius-card, 8px);
+  padding: var(--card-padding, 24px 28px);
+  background-color: #FFFFFF;
   cursor: pointer;
-  transition: var(--transition);
+  transition: all 0.2s ease;
   display: flex;
   flex-direction: column;
   position: relative;
+  box-shadow: var(--shadow-clinical, 0 1px 3px rgba(32, 79, 123, 0.05), 0 4px 6px -2px rgba(32, 79, 123, 0.02));
 }
 
 .model-card:hover {
-  border-color: var(--light-blue);
-  background-color: #FFFFFF;
+  border-color: var(--light-blue, #6094B8);
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-hover, 0 4px 12px rgba(32, 79, 123, 0.08));
 }
 
 .model-card input[type="radio"] {
   position: absolute;
-  top: 20px;
-  right: 20px;
+  top: 24px;
+  right: 24px;
   width: 20px;
   height: 20px;
-  accent-color: var(--primary);
+  accent-color: var(--primary, #204F7B);
 }
 
 .model-card.selected {
-  border-color: var(--primary);
+  border-color: var(--primary, #204F7B);
+  border-width: 2px;
   background-color: #FFFFFF;
-  box-shadow: var(--shadow-sm);
+  box-shadow: 0 4px 14px rgba(32, 79, 123, 0.1);
 }
 
 .model-badge {
   display: inline-block;
-  font-size: 11px;
-  font-weight: 700;
-  color: var(--primary);
-  background-color: var(--primary-light);
-  padding: 3px 8px;
-  border-radius: 4px;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--primary, #204F7B);
+  background-color: var(--primary-light, #EBF3F9);
+  border: 1px solid rgba(32, 79, 123, 0.15);
+  padding: 4px 10px;
+  border-radius: 6px;
   width: fit-content;
-  margin-bottom: 8px;
+  margin-bottom: 12px;
 }
 
 .model-title {
-  font-size: 16px;
-  font-weight: 700;
-  color: var(--primary);
-  margin-bottom: 6px;
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--primary, #204F7B);
+  margin-bottom: 8px;
 }
 
 .model-desc {
-  font-size: 13px;
-  color: var(--text-muted);
-  line-height: 1.4;
-  margin-bottom: 14px;
+  font-size: 14px;
+  color: var(--text-secondary, #64748B);
+  line-height: 1.5;
+  margin-bottom: 16px;
 }
 
 .model-features-note {
   margin-top: auto;
   font-size: 12px;
   background-color: #F8FAFC;
-  padding: 8px 12px;
-  border-radius: var(--radius-sm);
-  border: 1px solid var(--border);
-  color: var(--text-muted);
+  padding: 10px 14px;
+  border-radius: 8px;
+  border: 1px solid var(--border-color, #D9E4EC);
+  color: var(--text-secondary, #64748B);
 }
 
-/* Assessment Summary Review Card */
+/* 7. Assessment Summary Card */
 .review-summary-card {
   background-color: #F8FAFC;
-  border: 1px solid var(--border);
-  border-radius: var(--radius-sm);
-  padding: 20px;
+  border: 1px solid var(--border-color, #D9E4EC);
+  border-radius: var(--radius-card, 8px);
+  padding: 20px 24px;
   margin-bottom: 24px;
 }
 
 .review-item {
   display: flex;
   justify-content: space-between;
-  padding: 8px 0;
-  border-bottom: 1px dashed var(--border);
+  padding: 10px 0;
+  border-bottom: 1px solid var(--border-color, #D9E4EC);
   font-size: 14px;
 }
 
@@ -340,20 +394,20 @@
 }
 
 .review-label {
-  color: var(--text-muted);
+  color: var(--text-secondary, #64748B);
 }
 
 .review-value {
   font-weight: 600;
-  color: var(--text);
+  color: var(--text-main, #1F2937);
 }
 
-/* Loading Processing State Overlay */
+/* 8. Clinical Processing Spinner Overlay */
 .processing-overlay {
   display: none;
   position: fixed;
   inset: 0;
-  background-color: rgba(32, 79, 123, 0.4);
+  background-color: rgba(32, 79, 123, 0.45);
   backdrop-filter: blur(4px);
   z-index: 1000;
   align-items: center;
@@ -361,10 +415,11 @@
 }
 
 .processing-card {
-  background-color: #ffffff;
-  border-radius: var(--radius-md);
-  padding: 36px 44px;
-  box-shadow: var(--shadow-lg);
+  background-color: #FFFFFF;
+  border-radius: var(--radius-card, 8px);
+  border: 1px solid var(--border-color, #D9E4EC);
+  padding: 40px 48px;
+  box-shadow: 0 10px 30px rgba(32, 79, 123, 0.15);
   max-width: 440px;
   width: 90%;
   text-align: center;
@@ -373,8 +428,8 @@
 .spinner {
   width: 48px;
   height: 48px;
-  border: 4px solid var(--primary-light);
-  border-top-color: var(--primary);
+  border: 4px solid var(--primary-light, #EBF3F9);
+  border-top-color: var(--primary, #204F7B);
   border-radius: 50%;
   animation: spin 0.8s linear infinite;
   margin: 0 auto 20px;

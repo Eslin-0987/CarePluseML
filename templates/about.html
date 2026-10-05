@@ -1,250 +1,75 @@
 {% extends "base.html" %}
-
-{% block title %}About & Methodology - CarePulse ML Decision Support{% endblock %}
-{% block breadcrumb %}About & Methodology{% endblock %}
-
-{% block extra_css %}
-<link rel="stylesheet" href="{{ url_for('static', filename='css/about.css') }}">
-{% endblock %}
+{% block title %}Methodology & Architecture - HealthRecom{% endblock %}
+{% block breadcrumb %}Methodology & Architecture{% endblock %}
 
 {% block content %}
-<div class="about-container">
-  
-  <!-- Hero Section -->
-  <section class="about-hero">
-    <h1 class="about-hero-title">Personalized Healthcare & Medicine Recommendation System</h1>
-    <p class="about-hero-desc">
-      A transparent, secure machine-learning decision-support application connecting clinical symptom patterns with verified classification algorithms and knowledge-based educational guidance.
-    </p>
-  </section>
-
-  <!-- Notice of Educational Scope -->
-  <div class="card" style="background-color: #FFFBEB; border-color: #FDE68A;">
-    <div style="display: flex; gap: 14px; align-items: flex-start;">
-      <svg style="width: 24px; height: 24px; color: #D97706; flex-shrink: 0;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
-      <div>
-        <h3 style="font-size: 15px; font-weight: 700; color: #92400E; margin-bottom: 4px;">
-          Clinical Non-Diagnostic Disclaimer
-        </h3>
-        <p style="font-size: 13px; color: #78350F; line-height: 1.5;">
-          {{ disclaimer }}
-        </p>
-      </div>
-    </div>
+<div style="max-width: 960px; margin: 0 auto; padding: 12px 16px;">
+  <div class="page-header" style="margin-bottom: 24px;">
+    <h1>Methodology & Technical Architecture</h1>
+    <p class="subtitle">Open-access research documentation. No sign-up or authentication is required to review this methodology.</p>
   </div>
 
-  <!-- End-to-End ML & Recommendation Pipeline -->
-  <section class="card">
-    <div class="card-header">
-      <h2 class="card-title">
-        <svg style="width: 20px; height: 20px;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"/></svg>
-        Implemented Decision-Support Methodology
-      </h2>
-    </div>
+  <!-- Machine Learning Pipeline Card -->
+  <div class="card" style="margin-bottom: 20px;">
+    <h3>1. Supervised Machine Learning Pipeline</h3>
+    <p style="margin-bottom: 14px;">HealthRecom deploys dual classification architectures evaluated against a standardized 132-symptom feature space derived from clinical records:</p>
+    <ul class="styled-list" style="margin-bottom: 16px;">
+      <li><strong>Random Forest Classifier (<code>rf.pkl</code>):</strong> 100-tree ensemble capable of multi-class probability scoring via <code>predict_proba()</code>.</li>
+      <li><strong>Linear Support Vector Classifier (<code>svc.pkl</code>):</strong> Linear hyperplane separating 41 discrete condition classes. It deliberately omits uncalibrated probabilities to preserve diagnostic integrity.</li>
+    </ul>
+  </div>
 
-    <div class="methodology-pipeline-track">
-      <div class="pipeline-step-card">
-        <span class="pipeline-step-badge">Phase 1</span>
-        <div class="pipeline-step-title">1. Patient Assessment</div>
-        <div class="pipeline-step-text">User submits demographics and selects presenting symptoms from the validated 132-symptom catalog.</div>
-      </div>
+  <!-- Preprocessing & Vectorization Card -->
+  <div class="card" style="margin-bottom: 20px;">
+    <h3>2. Symptom Feature Vectorization</h3>
+    <p style="margin-bottom: 12px;">Client-selected symptoms are dynamically mapped to a 132-dimensional binary vector <code>[0, 1]</code> matching the precise feature order established during training (<code>symptoms_list.json</code>). Cumulative symptom severity is calculated through empirical clinical weights (<code>Symptom-severity.csv</code>).</p>
+  </div>
 
-      <div class="pipeline-step-card">
-        <span class="pipeline-step-badge">Phase 2</span>
-        <div class="pipeline-step-title">2. Server-Side Validation</div>
-        <div class="pipeline-step-text">Inputs are rigorously validated against boundaries. At least one recognized clinical symptom is required.</div>
-      </div>
+  <!-- Recommendation Engine Card -->
+  <div class="card" style="margin-bottom: 20px;">
+    <h3>3. Knowledge-Based Recommendation Engine</h3>
+    <p style="margin-bottom: 12px;">Predictions are linked deterministically to 5 relational knowledge bases without fabricating collaborative or deep learning assertions:</p>
+    <ul class="styled-list" style="margin-bottom: 8px;">
+      <li><strong>Condition Descriptions:</strong> <code>description.csv</code></li>
+      <li><strong>General Medications (Educational only):</strong> <code>medications.csv</code></li>
+      <li><strong>Clinical Precautions:</strong> <code>precautions_df.csv</code></li>
+      <li><strong>Dietary Guidelines:</strong> <code>diets.csv</code></li>
+      <li><strong>Lifestyle & Workouts:</strong> <code>workout_df.csv</code></li>
+    </ul>
+  </div>
 
-      <div class="pipeline-step-card">
-        <span class="pipeline-step-badge">Phase 3</span>
-        <div class="pipeline-step-title">3. Feature Preparation</div>
-        <div class="pipeline-step-text">Symptom keys are mapped into the exact 132-dimension binary indicator vector matching model training order.</div>
-      </div>
+  <!-- Future Research & Theoretical Architecture -->
+  <div class="card" style="margin-bottom: 20px;">
+    <h3>4. Theoretical Architecture & Research Roadmap</h3>
+    <p style="margin-bottom: 12px;">In adherence to strict academic honesty, future extensions remain modular and clearly separated from active V1 inference:</p>
+    <ul class="styled-list">
+      <li><strong>Content-Based Filtering:</strong> TF-IDF vectorization & Cosine Similarity across clinical textual corpora.</li>
+      <li><strong>Collaborative Filtering:</strong> Matrix Factorization (Truncated SVD) on anonymized perceived recovery utility matrices.</li>
+      <li><strong>Context-Aware Optimization:</strong> Multi-dimensional vital adjustments incorporating historical risk profiles.</li>
+    </ul>
+  </div>
 
-      <div class="pipeline-step-card">
-        <span class="pipeline-step-badge">Phase 4</span>
-        <div class="pipeline-step-title">4. Model Inference</div>
-        <div class="pipeline-step-text">The selected model (Random Forest or Linear SVC) executes multiclass inference to yield predicted class index.</div>
-      </div>
-
-      <div class="pipeline-step-card">
-        <span class="pipeline-step-badge">Phase 5</span>
-        <div class="pipeline-step-title">5. Label Decoding</div>
-        <div class="pipeline-step-text">The fitted LabelEncoder translates class integer (0–40) into the canonical medical condition name.</div>
-      </div>
-
-      <div class="pipeline-step-card">
-        <span class="pipeline-step-badge">Phase 6</span>
-        <div class="pipeline-step-title">6. Knowledge Lookup</div>
-        <div class="pipeline-step-text">Rule-based service retrieves condition overview, educational medicine info, precautions, diets, and lifestyle guidance.</div>
-      </div>
-    </div>
-  </section>
-
-  <!-- Machine Learning Models Comparison -->
-  <section class="card">
-    <div class="card-header">
-      <h2 class="card-title">
-        <svg style="width: 20px; height: 20px;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>
-        Trained Machine-Learning Models
-      </h2>
-    </div>
-
-    <div class="models-comparison-grid">
-      <!-- Random Forest Profile -->
-      <div class="model-profile-box">
-        <div class="model-profile-header">
-          <h3 class="model-profile-title">Random Forest Classifier</h3>
-          <span class="badge badge-primary">rf.pkl</span>
-        </div>
-        <p style="font-size: 13px; color: var(--text-muted); line-height: 1.4;">
-          An ensemble learning method constructing 100 randomized decision trees during training. It outputs the class selected by the majority of trees.
-        </p>
-        <ul class="model-spec-list">
-          <li class="model-spec-item">
-            <span class="model-spec-label">Algorithm Type:</span>
-            <span class="model-spec-value">RandomForestClassifier</span>
-          </li>
-          <li class="model-spec-item">
-            <span class="model-spec-label">Number of Estimators:</span>
-            <span class="model-spec-value">100 trees</span>
-          </li>
-          <li class="model-spec-item">
-            <span class="model-spec-label">Input Dimensionality:</span>
-            <span class="model-spec-value">132 binary features</span>
-          </li>
-          <li class="model-spec-item">
-            <span class="model-spec-label">Output Target Classes:</span>
-            <span class="model-spec-value">41 disease classes</span>
-          </li>
-          <li class="model-spec-item">
-            <span class="model-spec-label">Probability Estimates:</span>
-            <span class="model-spec-value">Supported (Tree voting)</span>
-          </li>
-        </ul>
-      </div>
-
-      <!-- Linear SVC Profile -->
-      <div class="model-profile-box">
-        <div class="model-profile-header">
-          <h3 class="model-profile-title">Linear SVC</h3>
-          <span class="badge badge-secondary">svc.pkl</span>
-        </div>
-        <p style="font-size: 13px; color: var(--text-muted); line-height: 1.4;">
-          A Support Vector Classifier configured with a linear kernel: <code>SVC(kernel='linear')</code>. Maximizes margin separation between classes.
-        </p>
-        <ul class="model-spec-list">
-          <li class="model-spec-item">
-            <span class="model-spec-label">Algorithm Type:</span>
-            <span class="model-spec-value">SVC(kernel='linear')</span>
-          </li>
-          <li class="model-spec-item">
-            <span class="model-spec-label">Kernel:</span>
-            <span class="model-spec-value">Linear (Not RBF)</span>
-          </li>
-          <li class="model-spec-item">
-            <span class="model-spec-label">Input Dimensionality:</span>
-            <span class="model-spec-value">132 binary features</span>
-          </li>
-          <li class="model-spec-item">
-            <span class="model-spec-label">Output Target Classes:</span>
-            <span class="model-spec-value">41 disease classes</span>
-          </li>
-          <li class="model-spec-item">
-            <span class="model-spec-label">Probability Estimates:</span>
-            <span class="model-spec-value">Not available (uncalibrated)</span>
-          </li>
-        </ul>
-      </div>
-    </div>
-  </section>
-
-  <!-- Knowledge-Based Recommendation Details -->
-  <section class="card">
-    <div class="card-header">
-      <h2 class="card-title">
-        <svg style="width: 20px; height: 20px;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/></svg>
-        Knowledge-Based / Rule-Based Recommendation Architecture
-      </h2>
-    </div>
-    <p style="font-size: 14px; color: var(--text); line-height: 1.6; margin-bottom: 16px;">
-      The V1 recommendation system operates via a deterministic, rule-based clinical knowledge mapping pipeline. Upon decoding the predicted condition, the system cross-references structured CSV knowledge bases:
+  <!-- Clinical Non-Diagnostic Disclaimer -->
+  <div class="card" style="background-color: #FFFBEB; border-color: #FDE68A; margin-bottom: 24px;">
+    <h3 style="color: #92400E; margin-bottom: 6px; font-size: 16px;">Clinical Decision Support Notice</h3>
+    <p style="color: #78350F; font-size: 14px; margin-bottom: 0; line-height: 1.5;">
+      {{ disclaimer }}
     </p>
-    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 12px;">
-      <div style="background: #F8FAFC; padding: 12px; border-radius: 6px; border: 1px solid var(--border);">
-        <strong style="color: var(--primary); font-size: 13px;">diseases.csv</strong>
-        <p style="font-size: 12px; color: var(--text-muted); margin-top: 4px;">41 disease overviews & clinical descriptions.</p>
-      </div>
-      <div style="background: #F8FAFC; padding: 12px; border-radius: 6px; border: 1px solid var(--border);">
-        <strong style="color: var(--primary); font-size: 13px;">medicines.csv</strong>
-        <p style="font-size: 12px; color: var(--text-muted); margin-top: 4px;">205 educational medication literature entries.</p>
-      </div>
-      <div style="background: #F8FAFC; padding: 12px; border-radius: 6px; border: 1px solid var(--border);">
-        <strong style="color: var(--primary); font-size: 13px;">precautions.csv</strong>
-        <p style="font-size: 12px; color: var(--text-muted); margin-top: 4px;">162 recommended preventive clinical precautions.</p>
-      </div>
-      <div style="background: #F8FAFC; padding: 12px; border-radius: 6px; border: 1px solid var(--border);">
-        <strong style="color: var(--primary); font-size: 13px;">diets.csv</strong>
-        <p style="font-size: 12px; color: var(--text-muted); margin-top: 4px;">205 nutritional & dietary recommendations.</p>
-      </div>
-      <div style="background: #F8FAFC; padding: 12px; border-radius: 6px; border: 1px solid var(--border);">
-        <strong style="color: var(--primary); font-size: 13px;">lifestyle.csv</strong>
-        <p style="font-size: 12px; color: var(--text-muted); margin-top: 4px;">409 supportive workout & lifestyle guidance records.</p>
-      </div>
-    </div>
-  </section>
+  </div>
 
-  <!-- Future AI & Recommendation Research Preview -->
-  <section class="card">
-    <div class="card-header">
-      <h2 class="card-title">
-        <svg style="width: 20px; height: 20px;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z"/></svg>
-        AI & Recommendation Research Preview
-      </h2>
-      <span class="badge badge-neutral">Future Architectural Roadmap</span>
-    </div>
-
-    <p style="font-size: 13px; color: var(--text-muted);">
-      The following advanced modules are planned for future research iterations. In adherence to strict product transparency, only the verified Random Forest, Linear SVC, and rule-based recommendation systems are active in V1.
-    </p>
-
-    <div class="future-research-grid">
-      <div class="future-item-card">
-        <span class="future-status-pill">Future Extension</span>
-        <div class="future-title">1. Content-Based TF-IDF Filtering</div>
-        <div class="future-desc">Vectorization of symptom descriptions using TF-IDF and Cosine Similarity to recommend non-obvious cross-domain medical interventions.</div>
-      </div>
-
-      <div class="future-item-card">
-        <span class="future-status-pill">Future Extension</span>
-        <div class="future-title">2. Collaborative Filtering</div>
-        <div class="future-desc">Matrix Factorization (SVD) across anonymized user interaction matrices to identify lifestyle habits that yielded high perceived efficacy.</div>
-      </div>
-
-      <div class="future-item-card">
-        <span class="future-status-pill">Future Extension</span>
-        <div class="future-title">3. Hybrid Recommendation Engine</div>
-        <div class="future-desc">Ensemble weighting combining content-based semantic matching with collaborative utility rankings.</div>
-      </div>
-
-      <div class="future-item-card">
-        <span class="future-status-pill">Future Extension</span>
-        <div class="future-title">4. Context-Aware Personalization</div>
-        <div class="future-desc">Dynamic multi-dimensional context modeling factoring in user age, vitals trends, previous health history, and seasonality.</div>
-      </div>
-
-      <div class="future-item-card">
-        <span class="future-status-pill">Future Extension</span>
-        <div class="future-title">5. NLP & Sentiment Analysis</div>
-        <div class="future-desc">Transformer-based sentiment classification on user recommendation feedback to detect adverse response signals.</div>
-      </div>
-
-      <div class="future-item-card">
-        <span class="future-status-pill">Future Extension</span>
-        <div class="future-title">6. Biomedical Knowledge Graphs</div>
-        <div class="future-desc">Graph-based ontological querying connecting symptoms, disease phenotypes, pharmacological agents, and clinical trials.</div>
-      </div>
-    </div>
-  </section>
+  {% if not session.get('user_id') and not current_user %}
+  <div class="card" style="text-align: center; background-color: #F8FAFC; border: 1px dashed var(--light-blue); padding: 32px 24px;">
+    <h3 style="margin-bottom: 8px;">Ready to run an interactive assessment?</h3>
+    <p style="color: var(--text-secondary); margin-bottom: 20px;">Sign up or log in to store and track your health assessments securely.</p>
+    <a href="{{ url_for('auth.signup') }}" class="btn btn-secondary" style="margin-right: 12px;">Create Account</a>
+    <a href="{{ url_for('auth.login') }}" class="btn btn-primary">Log In</a>
+  </div>
+  {% else %}
+  <div class="card" style="text-align: center; background-color: #F8FAFC; border: 1px solid var(--border-color); padding: 24px;">
+    <h3 style="margin-bottom: 8px;">Start a New Assessment</h3>
+    <p style="color: var(--text-secondary); margin-bottom: 16px;">Run your presenting symptoms through our validated dual-model classifier.</p>
+    <a href="{{ url_for('prediction.assessment') }}" class="btn btn-primary">Go to Assessment</a>
+  </div>
+  {% endif %}
 </div>
 {% endblock %}
