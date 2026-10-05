@@ -215,10 +215,12 @@ def test_authenticated_assessment_and_result(client, app):
     assert b"Personal Prediction History" in res_hist.data
     assert b"Random Forest" in res_hist.data
 
-    # Verify dashboard calculates real metrics
+    # Verify dashboard calculates real metrics and does not contain activity audit trail
     res_dash = client.get('/dashboard')
     assert res_dash.status_code == 200
     assert b"Total Assessments" in res_dash.data
+    assert b"Recent Activity & Audit Trail" not in res_dash.data
+    assert res_dash.data.count(b"Start New Assessment") == 1
 
 def test_favicon_and_navbar_auth_state(client):
     # 1. Favicon is served properly

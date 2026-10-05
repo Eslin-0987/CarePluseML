@@ -217,33 +217,4 @@
     </div>
   </div>
 </div>
-
-<!-- Recent User Activity Log Card -->
-<div class="card">
-  <div class="card-header">
-    <h2 class="card-title">
-      <svg style="width: 20px; height: 20px;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
-      Recent Activity & Audit Trail
-    </h2>
-  </div>
-
-  {% if recent_activities %}
-    <div class="activity-list">
-      {% for act in recent_activities %}
-        <div class="activity-item">
-          <div class="activity-dot"></div>
-          <div class="activity-content">
-            <div class="activity-title">{{ act.activity_type }}</div>
-            {% if act.activity_details %}
-              <div style="color: var(--text-muted); font-size: 12px; margin-top: 2px;">{{ act.activity_details }}</div>
-            {% endif %}
-            <div class="activity-time">{{ act.created_at }}</div>
-          </div>
-        </div>
-      {% endfor %}
-    </div>
-  {% else %}
-    <p style="font-size: 13px; color: var(--text-muted);">No recent activities logged.</p>
-  {% endif %}
-</div>
 {% endblock %}
