@@ -16,7 +16,7 @@ class Config:
     JWT_COOKIE_SECURE = os.environ.get('JWT_COOKIE_SECURE', 'False').lower() in ('true', '1')
     JWT_ACCESS_COOKIE_NAME = 'access_token_cookie'
     JWT_COOKIE_CSRF_PROTECT = False  # Keep false for frictionless clean form submissions in V1
-    JWT_ACCESS_TOKEN_EXPIRES = timedelta(hours=12)
+    JWT_ACCESS_TOKEN_EXPIRES = timedelta(days=30)
     
     # SQLite Database
     DATABASE_PATH = os.environ.get('DATABASE_PATH', os.path.join(basedir, 'database.db'))
