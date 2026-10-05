@@ -1,0 +1,161 @@
+{% extends "base.html" %}
+
+{% block title %}Assessment History - CarePulse ML Decision Support{% endblock %}
+{% block breadcrumb %}History{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/history.css') }}">
+{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <div>
+    <h1 class="page-title">Personal Prediction History</h1>
+    <p class="page-subtitle">
+      Confidential record of your historical health assessments and machine-learning predictions.
+    </p>
+  </div>
+  <a href="{{ url_for('prediction.assessment') }}" class="btn btn-primary">
+    <svg style="width: 16px; height: 16px;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+    New Assessment
+  </a>
+</div>
+
+<!-- History Toolbar: Search, Model Filter, Sorting -->
+<div class="history-toolbar">
+  <form method="GET" action="{{ url_for('prediction.history') }}" class="history-search-form">
+    <input type="text" name="q" class="history-search-input" 
+           placeholder="Search condition or symptom..." 
+           value="{{ search_query }}">
+
+    <select name="model" class="history-select" onchange="this.form.submit();">
+      <option value="all" {% if model_filter == 'all' %}selected{% endif %}>All Models</option>
+      <option value="Random Forest" {% if model_filter == 'Random Forest' %}selected{% endif %}>Random Forest</option>
+      <option value="Linear SVC" {% if model_filter == 'Linear SVC' %}selected{% endif %}>Linear SVC</option>
+    </select>
+
+    <select name="sort" class="history-select" onchange="this.form.submit();">
+      <option value="desc" {% if sort_order == 'desc' %}selected{% endif %}>Newest First</option>
+      <option value="asc" {% if sort_order == 'asc' %}selected{% endif %}>Oldest First</option>
+    </select>
+
+    <button type="submit" class="btn btn-secondary btn-sm">Filter</button>
+    {% if search_query or (model_filter and model_filter != 'all') %}
+      <a href="{{ url_for('prediction.history') }}" class="btn btn-secondary btn-sm">Clear</a>
+    {% endif %}
+  </form>
+
+  <span style="font-size: 13px; color: var(--text-muted);">
+    Total records: <strong>{{ predictions | length }}</strong>
+  </span>
+</div>
+
+{% if predictions %}
+  <!-- Desktop Table View -->
+  <div class="card desktop-history-view" style="padding: 0; overflow: hidden;">
+    <div class="table-responsive">
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>Date & Time</th>
+            <th>Predicted Condition</th>
+            <th>ML Model</th>
+            <th>Probability Estimate</th>
+            <th>Presenting Symptoms</th>
+            <th style="text-align: right;">Action</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for pred in predictions %}
+            <tr>
+              <td>{{ pred.prediction_date | format_date }}</td>
+              <td>
+                <strong style="color: var(--primary);">{{ pred.predicted_disease }}</strong>
+              </td>
+              <td>
+                <span class="badge badge-primary">{{ pred.model_used }}</span>
+              </td>
+              <td>
+                {% if pred.prediction_probability is not none %}
+                  {{ (pred.prediction_probability * 100) | round(1) }}%
+                {% else %}
+                  <span style="color: var(--text-muted); font-size: 12px;">Not available</span>
+                {% endif %}
+              </td>
+              <td style="max-width: 260px; font-size: 12px; color: var(--text-muted); overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
+                {{ pred.formatted_symptoms_preview }}
+              </td>
+              <td style="text-align: right;">
+                <a href="{{ url_for('prediction.result', prediction_id=pred.id) }}" class="btn btn-secondary btn-sm">
+                  View Result
+                </a>
+              </td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Mobile Cards View -->
+  <div class="mobile-history-cards">
+    {% for pred in predictions %}
+      <div class="history-mobile-card">
+        <div class="history-mobile-header">
+          <div>
+            <h3 style="font-size: 16px; font-weight: 700; color: var(--primary); margin-bottom: 2px;">
+              {{ pred.predicted_disease }}
+            </h3>
+            <span style="font-size: 12px; color: var(--text-muted);">
+              {{ pred.prediction_date | format_date }}
+            </span>
+          </div>
+          <span class="badge badge-primary">{{ pred.model_used }}</span>
+        </div>
+
+        <div style="font-size: 13px; color: var(--text);">
+          <strong>Probability:</strong> 
+          {% if pred.prediction_probability is not none %}
+            {{ (pred.prediction_probability * 100) | round(1) }}%
+          {% else %}
+            Not available
+          {% endif %}
+        </div>
+
+        <div style="font-size: 12px; color: var(--text-muted);">
+          <strong>Symptoms:</strong> {{ pred.formatted_symptoms_preview }}
+        </div>
+
+        <div style="margin-top: 6px;">
+          <a href="{{ url_for('prediction.result', prediction_id=pred.id) }}" class="btn btn-secondary btn-sm" style="width: 100%;">
+            View Assessment Details
+          </a>
+        </div>
+      </div>
+    {% endfor %}
+  </div>
+
+{% else %}
+  <!-- Empty State -->
+  <div class="card">
+    <div class="empty-state">
+      <div class="empty-state-icon">
+        <svg style="width: 28px; height: 28px;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+      </div>
+      <h3 class="empty-state-title">No assessment records found</h3>
+      <p class="empty-state-desc">
+        {% if search_query or (model_filter and model_filter != 'all') %}
+          No historical predictions match your current search or filter criteria. Try clearing your filters.
+        {% else %}
+          You have not completed any health assessments yet. Your completed predictions and educational recommendations will appear here.
+        {% endif %}
+      </p>
+      {% if search_query or (model_filter and model_filter != 'all') %}
+        <a href="{{ url_for('prediction.history') }}" class="btn btn-secondary">Clear Filters</a>
+      {% else %}
+        <a href="{{ url_for('prediction.assessment') }}" class="btn btn-primary">Start New Assessment</a>
+      {% endif %}
+    </div>
+  </div>
+{% endif %}
+{% endblock %}

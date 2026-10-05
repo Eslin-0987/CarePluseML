@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{% block title %}{{ app_name }}{% endblock %} | Healthcare Decision Support</title>
+  <meta name="description" content="Personalized Healthcare and Medicine Recommendation Decision Support System using Machine Learning.">
+  
+  <!-- Modern Inter & Roboto Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  
+  <!-- Base Design System -->
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/base.css') }}">
+  {% block extra_css %}{% endblock %}
+</head>
+<body>
+  {% if current_user %}
+  <div class="app-shell">
+    <!-- Desktop & Mobile Sidebar -->
+    <aside class="app-sidebar" id="appSidebar">
+      <div class="sidebar-header">
+        <img src="{{ url_for('static', filename='images/logo.png') }}" alt="CarePulse Logo" class="sidebar-logo">
+      </div>
+
+      <nav class="sidebar-nav">
+        <a href="{{ url_for('dashboard.dashboard') }}" class="nav-item {% if request.endpoint == 'dashboard.dashboard' %}active{% endif %}">
+          <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/></svg>
+          Dashboard
+        </a>
+        <a href="{{ url_for('prediction.assessment') }}" class="nav-item {% if request.endpoint == 'prediction.assessment' %}active{% endif %}">
+          <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+          New Assessment
+        </a>
+        <a href="{{ url_for('prediction.history') }}" class="nav-item {% if request.endpoint == 'prediction.history' %}active{% endif %}">
+          <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+          History
+        </a>
+        <a href="{{ url_for('recommendation.profile') }}" class="nav-item {% if request.endpoint == 'recommendation.profile' %}active{% endif %}">
+          <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg>
+          Profile
+        </a>
+        <a href="{{ url_for('recommendation.about') }}" class="nav-item {% if request.endpoint == 'recommendation.about' %}active{% endif %}">
+          <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+          About & Methodology
+        </a>
+      </nav>
+
+      <div class="sidebar-footer">
+        <div class="disclaimer-card">
+          <strong>Decision Support Notice</strong>
+          For educational & research use. Not a clinical diagnosis or medical prescription.
+        </div>
+        <div class="user-mini-profile">
+          <div style="min-width: 0;">
+            <div class="user-info-text">{{ current_user.name }}</div>
+            <span class="user-role-badge">Verified User</span>
+          </div>
+          <a href="{{ url_for('auth.logout') }}" title="Logout" style="color: var(--text-muted); padding: 4px;">
+            <svg style="width: 18px; height: 18px;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/></svg>
+          </a>
+        </div>
+      </div>
+    </aside>
+
+    <!-- Main Content Wrapper -->
+    <div class="app-main-wrapper">
+      <header class="app-header">
+        <div class="header-left">
+          <button type="button" class="mobile-menu-toggle" id="menuToggle" aria-label="Toggle navigation menu">
+            <svg style="width: 22px; height: 22px;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/></svg>
+          </button>
+          
+          <nav class="breadcrumbs" aria-label="Breadcrumb">
+            <a href="{{ url_for('dashboard.dashboard') }}">Home</a>
+            <span>/</span>
+            <span class="current">{% block breadcrumb %}Dashboard{% endblock %}</span>
+          </nav>
+        </div>
+
+        <div class="header-right">
+          <a href="{{ url_for('prediction.assessment') }}" class="btn btn-primary btn-sm">
+            <svg style="width: 16px; height: 16px;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+            <span>Start Assessment</span>
+          </a>
+          <a href="{{ url_for('recommendation.profile') }}" class="badge badge-neutral" style="text-decoration: none;">
+            {{ current_user.name.split()[0] }}
+          </a>
+        </div>
+      </header>
+
+      <!-- Content Container -->
+      <main class="app-content">
+        <!-- Flash Notifications -->
+        {% with messages = get_flashed_messages(with_categories=true) %}
+          {% if messages %}
+            <div class="notification-container" id="notificationContainer">
+              {% for category, message in messages %}
+                <div class="alert alert-{{ category if category != 'message' else 'info' }}" role="alert">
+                  <div style="display: flex; align-items: center; gap: 8px;">
+                    {% if category == 'success' %}
+                      <svg style="width: 18px; height: 18px; flex-shrink: 0;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
+                    {% elif category == 'error' %}
+                      <svg style="width: 18px; height: 18px; flex-shrink: 0;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                    {% else %}
+                      <svg style="width: 18px; height: 18px; flex-shrink: 0;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                    {% endif %}
+                    <span>{{ message }}</span>
+                  </div>
+                  <button type="button" class="alert-close" onclick="this.parentElement.remove();" aria-label="Close notification">&times;</button>
+                </div>
+              {% endfor %}
+            </div>
+          {% endif %}
+        {% endwith %}
+
+        {% block content %}{% endblock %}
+      </main>
+
+      <!-- Footer -->
+      <footer class="app-footer">
+        <div>
+          <strong>CarePulse ML Decision Support System</strong> &copy; {{ current_year }} &middot; Educational & Research Decision Support
+        </div>
+        <div>
+          <a href="{{ url_for('recommendation.about') }}" style="color: var(--text-muted); margin-right: 16px;">Methodology & Disclaimers</a>
+          <span style="color: var(--text-light);">V1.0 (Production Ready)</span>
+        </div>
+      </footer>
+    </div>
+  </div>
+  {% else %}
+  <!-- Minimalist Guest Layout for Auth & Public About -->
+  <div style="min-height: 100vh; display: flex; flex-direction: column;">
+    <header style="padding: 16px 32px; background: #fff; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center;">
+      <a href="{{ url_for('auth.login') }}">
+        <img src="{{ url_for('static', filename='images/logo.png') }}" alt="CarePulse Logo" style="height: 38px;">
+      </a>
+      <div>
+        <a href="{{ url_for('recommendation.about') }}" style="font-size: 14px; font-weight: 500; color: var(--text-muted); margin-right: 16px;">Methodology</a>
+        <a href="{{ url_for('auth.login') }}" class="btn btn-secondary btn-sm" style="margin-right: 8px;">Log In</a>
+        <a href="{{ url_for('auth.signup') }}" class="btn btn-primary btn-sm">Sign Up</a>
+      </div>
+    </header>
+
+    <main style="flex: 1; display: flex; align-items: center; justify-content: center; padding: 32px 16px;">
+      {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+          <div style="position: fixed; top: 76px; left: 50%; transform: translateX(-50%); width: 90%; max-width: 520px; z-index: 999;">
+            {% for category, message in messages %}
+              <div class="alert alert-{{ category if category != 'message' else 'info' }}">
+                <span>{{ message }}</span>
+                <button type="button" class="alert-close" onclick="this.parentElement.remove();">&times;</button>
+              </div>
+            {% endfor %}
+          </div>
+        {% endif %}
+      {% endwith %}
+
+      {% block guest_content %}{% endblock %}
+    </main>
+
+    <footer style="padding: 20px 32px; background: #fff; border-top: 1px solid var(--border); text-align: center; font-size: 12px; color: var(--text-muted);">
+      CarePulse ML Decision Support System &copy; {{ current_year }} &middot; Strictly for Educational & Research Use &middot; Not a Clinical Diagnosis
+    </footer>
+  </div>
+  {% endif %}
+
+  <!-- Core JavaScript -->
+  <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+  {% block extra_js %}{% endblock %}
+</body>
+</html>

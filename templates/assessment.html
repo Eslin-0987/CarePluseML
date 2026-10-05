@@ -1,0 +1,281 @@
+{% extends "base.html" %}
+
+{% block title %}Health Assessment - CarePulse ML Decision Support{% endblock %}
+{% block breadcrumb %}New Assessment{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/assessment.css') }}">
+{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <div>
+    <h1 class="page-title">Health Assessment & Prediction</h1>
+    <p class="page-subtitle">
+      Submit your clinical measurements and symptoms to evaluate against trained machine-learning models.
+    </p>
+  </div>
+</div>
+
+<form id="assessmentForm" method="POST" action="{{ url_for('prediction.assessment') }}" class="assessment-container">
+  
+  <!-- Section 1: Personal Information -->
+  <section class="step-section" id="stepPersonal">
+    <div class="step-header">
+      <div class="step-number">01</div>
+      <div class="step-title-group">
+        <h2>Personal Information</h2>
+        <p>Pre-filled from your profile. Update if this assessment is for another baseline.</p>
+      </div>
+    </div>
+
+    <div class="vitals-form-grid">
+      <div class="form-group">
+        <label for="age" class="form-label">
+          <span>Age</span>
+          <span class="required-indicator">*</span>
+        </label>
+        <input type="number" id="age" name="age" class="form-control" 
+               min="1" max="125" placeholder="Years"
+               value="{{ health_profile.age if health_profile and health_profile.age else (user.age or '') }}" required>
+        <span class="helper-text">Age in completed years.</span>
+      </div>
+
+      <div class="form-group">
+        <label for="gender" class="form-label">
+          <span>Gender</span>
+          <span class="required-indicator">*</span>
+        </label>
+        {% set cur_gender = health_profile.gender if health_profile and health_profile.gender else (user.gender or '') %}
+        <select id="gender" name="gender" class="form-control" required>
+          <option value="">Select gender</option>
+          <option value="Female" {% if cur_gender == 'Female' %}selected{% endif %}>Female</option>
+          <option value="Male" {% if cur_gender == 'Male' %}selected{% endif %}>Male</option>
+          <option value="Non-Binary" {% if cur_gender == 'Non-Binary' %}selected{% endif %}>Non-Binary</option>
+          <option value="Other" {% if cur_gender == 'Other' %}selected{% endif %}>Other</option>
+          <option value="Prefer not to say" {% if cur_gender == 'Prefer not to say' %}selected{% endif %}>Prefer not to say</option>
+        </select>
+        <span class="helper-text">Biological or demographic context.</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- Section 2: Vital / Clinical Measurements -->
+  <section class="step-section" id="stepVitals">
+    <div class="step-header">
+      <div class="step-number">02</div>
+      <div class="step-title-group">
+        <h2>Vital / Clinical Measurements (Optional)</h2>
+        <p>Recorded to your personal health record for tracking longitudinal context.</p>
+      </div>
+    </div>
+
+    <div class="vitals-form-grid">
+      <div class="form-group">
+        <label for="blood_pressure" class="form-label">Blood Pressure</label>
+        <input type="text" id="blood_pressure" name="blood_pressure" class="form-control" 
+               placeholder="e.g. 120/80" 
+               value="{{ health_profile.blood_pressure if health_profile and health_profile.blood_pressure else '' }}">
+        <span class="helper-text">Systolic / Diastolic in mmHg.</span>
+      </div>
+
+      <div class="form-group">
+        <label for="glucose" class="form-label">Fasting Glucose</label>
+        <input type="number" step="0.1" id="glucose" name="glucose" class="form-control" 
+               placeholder="e.g. 95" 
+               value="{{ health_profile.glucose if health_profile and health_profile.glucose else '' }}">
+        <span class="helper-text">Serum glucose in mg/dL.</span>
+      </div>
+
+      <div class="form-group">
+        <label for="heart_rate" class="form-label">Heart Rate (Pulse)</label>
+        <input type="number" id="heart_rate" name="heart_rate" class="form-control" 
+               placeholder="e.g. 72" 
+               value="{{ health_profile.heart_rate if health_profile and health_profile.heart_rate else '' }}">
+        <span class="helper-text">Resting heart rate in beats per minute (bpm).</span>
+      </div>
+
+      <div class="form-group">
+        <label for="cholesterol" class="form-label">Total Cholesterol</label>
+        <input type="number" step="0.1" id="cholesterol" name="cholesterol" class="form-control" 
+               placeholder="e.g. 185" 
+               value="{{ health_profile.cholesterol if health_profile and health_profile.cholesterol else '' }}">
+        <span class="helper-text">Total serum cholesterol in mg/dL.</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- Section 3: Symptoms Selection (Exact 132 Model Features) -->
+  <section class="step-section" id="stepSymptoms">
+    <div class="step-header">
+      <div class="step-number">03</div>
+      <div class="step-title-group">
+        <h2>Presenting Symptoms</h2>
+        <p>Select all symptoms currently experienced. Matches the 132 clinical features used to train the machine learning models.</p>
+      </div>
+    </div>
+
+    <!-- Symptoms Search Bar & Category Filter Bar -->
+    <div class="symptoms-toolbar">
+      <div class="symptoms-search-wrapper">
+        <svg class="search-icon-svg" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+        <input type="text" id="symptomSearchInput" class="symptoms-search-input" 
+               placeholder="Search any symptom (e.g., fever, rash, joint pain, cough, fatigue)..." 
+               autocomplete="off">
+      </div>
+
+      <div class="category-filter-bar">
+        <button type="button" class="category-filter-btn active" data-category="All">All Categories</button>
+        {% for cat in categorized_symptoms.keys() %}
+          <button type="button" class="category-filter-btn" data-category="{{ cat }}">{{ cat }}</button>
+        {% endfor %}
+      </div>
+    </div>
+
+    <!-- Selected Symptoms Tray -->
+    <div class="selected-tray-container" id="selectedSymptomsTray">
+      <div class="selected-tray-header">
+        <span>Selected Symptoms for Model Input:</span>
+        <span class="badge badge-primary" id="selectedCountBadge">0 selected</span>
+      </div>
+      <div class="selected-chips-list" id="selectedChipsList">
+        <!-- Dynamically populated by JS -->
+      </div>
+    </div>
+
+    <!-- Grouped Categories Checklist -->
+    <div id="symptomsCatalog">
+      {% for cat_name, symptoms in categorized_symptoms.items() %}
+        <div class="symptom-category-block" data-category="{{ cat_name }}">
+          <h3 class="symptom-category-title">
+            <svg style="width: 16px; height: 16px; color: var(--primary);" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+            {{ cat_name }} ({{ symptoms | length }})
+          </h3>
+
+          <div class="symptoms-checkbox-grid">
+            {% for sym in symptoms %}
+              <label class="symptom-checkbox-card" for="sym_{{ sym.id }}">
+                <input type="checkbox" id="sym_{{ sym.id }}" name="symptoms" value="{{ sym.id }}">
+                <span class="symptom-name">{{ sym.label }}</span>
+              </label>
+            {% endfor %}
+          </div>
+        </div>
+      {% endfor %}
+    </div>
+  </section>
+
+  <!-- Section 4: Medical History Background -->
+  <section class="step-section" id="stepHistory">
+    <div class="step-header">
+      <div class="step-number">04</div>
+      <div class="step-title-group">
+        <h2>Medical History & Background</h2>
+        <p>Document any pre-existing conditions, known allergies, or medications.</p>
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label for="medical_history" class="form-label">Clinical Background / Known History</label>
+      <textarea id="medical_history" name="medical_history" class="form-control" rows="3" 
+                placeholder="e.g. Diagnosed with mild asthma in 2022; penicillin allergy...">{{ health_profile.medical_history if health_profile and health_profile.medical_history else '' }}</textarea>
+      <span class="helper-text">Stored for your personal longitudinal record.</span>
+    </div>
+  </section>
+
+  <!-- Section 5: Machine Learning Model Selection -->
+  <section class="step-section" id="stepModel">
+    <div class="step-header">
+      <div class="step-number">05</div>
+      <div class="step-title-group">
+        <h2>Select Machine Learning Model</h2>
+        <p>Select the algorithm to process your feature vector. Both models are trained on the exact same clinical symptom dataset.</p>
+      </div>
+    </div>
+
+    <div class="model-selection-grid">
+      <!-- Random Forest Option -->
+      <div class="model-card selected" id="rfCard">
+        <input type="radio" name="model_selection" id="model_rf" value="random_forest" checked>
+        <span class="model-badge">Ensemble Decision Trees</span>
+        <h3 class="model-title">Random Forest</h3>
+        <p class="model-desc">
+          Ensemble classifier constructing 100 decision trees during training. Aggregates votes across trees and calculates probability estimates for class predictions.
+        </p>
+        <div class="model-features-note">
+          <strong>Probability estimate:</strong> Supported via tree class probability voting.
+        </div>
+      </div>
+
+      <!-- Linear SVC Option -->
+      <div class="model-card" id="svcCard">
+        <input type="radio" name="model_selection" id="model_svc" value="linear_svc">
+        <span class="model-badge">Support Vector Classifier</span>
+        <h3 class="model-title">Linear SVC</h3>
+        <p class="model-desc">
+          Linear Support Vector Classifier: <code>SVC(kernel='linear')</code>. Identifies maximum-margin separating hyperplanes in 132-dimensional symptom feature space.
+        </p>
+        <div class="model-features-note">
+          <strong>Probability estimate:</strong> Not available for this model (uncalibrated margins).
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Section 6: Review & Final Submission -->
+  <section class="step-section" id="stepReview">
+    <div class="step-header">
+      <div class="step-number">06</div>
+      <div class="step-title-group">
+        <h2>Review Assessment Summary</h2>
+        <p>Verify your entered parameters before executing machine-learning inference.</p>
+      </div>
+    </div>
+
+    <div class="review-summary-card">
+      <div class="review-item">
+        <span class="review-label">Age & Gender:</span>
+        <span class="review-value" id="reviewDemographics">{{ user.age or 'Not set' }} yrs, {{ user.gender or 'Not set' }}</span>
+      </div>
+      <div class="review-item">
+        <span class="review-label">Active Symptoms Count:</span>
+        <span class="review-value"><strong id="reviewSelectedCount">0</strong> symptoms</span>
+      </div>
+      <div class="review-item">
+        <span class="review-label">Symptoms Preview:</span>
+        <span class="review-value" id="reviewSymptomsPreview">None</span>
+      </div>
+      <div class="review-item">
+        <span class="review-label">Selected Algorithm:</span>
+        <span class="review-value" id="reviewSelectedModel">Random Forest</span>
+      </div>
+    </div>
+
+    <div style="display: flex; gap: 16px; align-items: center; flex-wrap: wrap;">
+      <button type="submit" class="btn btn-primary btn-lg" id="predictSubmitBtn" style="min-width: 260px;">
+        <svg style="width: 20px; height: 20px;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+        Generate ML Prediction
+      </button>
+      <a href="{{ url_for('dashboard.dashboard') }}" class="btn btn-secondary btn-lg">Cancel</a>
+    </div>
+  </section>
+</form>
+
+<!-- Loading / Processing State Modal Overlay -->
+<div class="processing-overlay" id="processingOverlay">
+  <div class="processing-card">
+    <div class="spinner"></div>
+    <h3 style="color: var(--primary); font-size: 18px; margin-bottom: 8px;">Analyzing Health Assessment</h3>
+    <p style="color: var(--text-muted); font-size: 13px; line-height: 1.5; margin-bottom: 16px;">
+      Encoding 132-dimension symptom vector & executing model inference...
+    </p>
+    <div style="font-size: 12px; color: var(--primary); font-weight: 600; background: var(--primary-light); padding: 8px; border-radius: 6px;">
+      Please wait while the decision-support results are prepared.
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{{ url_for('static', filename='js/assessment.js') }}"></script>
+{% endblock %}

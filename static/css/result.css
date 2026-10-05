@@ -1,0 +1,244 @@
+/* Prediction Result & Recommendation Styles */
+
+.result-container {
+  display: flex;
+  flex-direction: column;
+  gap: 28px;
+}
+
+/* Primary Prediction Hero Banner */
+.prediction-hero-card {
+  background: linear-gradient(135deg, #FFFFFF 0%, #F0F6FB 100%);
+  border: 2px solid var(--primary-light);
+  border-radius: var(--radius-lg);
+  padding: 32px 36px;
+  box-shadow: var(--shadow-md);
+  position: relative;
+  overflow: hidden;
+}
+
+.prediction-hero-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 6px;
+  height: 100%;
+  background-color: var(--primary);
+}
+
+.prediction-header-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--primary);
+  background-color: #ffffff;
+  padding: 6px 12px;
+  border-radius: 999px;
+  border: 1px solid var(--border);
+  margin-bottom: 16px;
+}
+
+.predicted-condition-title {
+  font-size: 32px;
+  font-weight: 800;
+  color: var(--primary);
+  letter-spacing: -0.02em;
+  line-height: 1.2;
+  margin-bottom: 12px;
+}
+
+.prediction-meta-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 16px;
+  margin-top: 20px;
+  padding-top: 20px;
+  border-top: 1px solid rgba(217, 228, 236, 0.8);
+}
+
+.prediction-meta-item {
+  display: flex;
+  flex-direction: column;
+}
+
+.prediction-meta-label {
+  font-size: 12px;
+  color: var(--text-muted);
+  font-weight: 500;
+}
+
+.prediction-meta-value {
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--text);
+  margin-top: 2px;
+}
+
+/* Probability Bar */
+.probability-meter-container {
+  margin-top: 16px;
+  background-color: #ffffff;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 14px 18px;
+}
+
+.probability-bar-track {
+  width: 100%;
+  height: 10px;
+  background-color: #E2E8F0;
+  border-radius: 999px;
+  overflow: hidden;
+  margin: 8px 0;
+}
+
+.probability-bar-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--light-blue) 0%, var(--primary) 100%);
+  border-radius: 999px;
+  transition: width 0.8s ease-out;
+}
+
+.probability-explanation {
+  font-size: 12px;
+  color: var(--text-muted);
+}
+
+/* Recommendation Sections Layout */
+.recommendation-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  gap: 24px;
+}
+
+.rec-card {
+  background-color: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  padding: 24px;
+  box-shadow: var(--shadow-sm);
+  display: flex;
+  flex-direction: column;
+}
+
+.rec-card-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 16px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--border);
+}
+
+.rec-card-icon {
+  width: 34px;
+  height: 34px;
+  border-radius: var(--radius-sm);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.rec-card-icon.blue { background-color: var(--primary-light); color: var(--primary); }
+.rec-card-icon.green { background-color: var(--secondary-light); color: var(--secondary); }
+.rec-card-icon.yellow { background-color: #FEF3C7; color: #B45309; }
+.rec-card-icon.purple { background-color: #F3E8FF; color: #7E22CE; }
+
+.rec-card-title {
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--primary);
+}
+
+.rec-list {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.rec-list-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  font-size: 14px;
+  color: var(--text);
+  line-height: 1.4;
+}
+
+.rec-list-bullet {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background-color: var(--secondary);
+  margin-top: 7px;
+  flex-shrink: 0;
+}
+
+/* Medicine Item Card */
+.med-item-card {
+  background-color: #FAFCFE;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 12px 14px;
+  margin-bottom: 10px;
+}
+
+.med-name {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--primary);
+}
+
+.med-info {
+  font-size: 12px;
+  color: var(--text-muted);
+  margin-top: 4px;
+  line-height: 1.4;
+}
+
+/* Print Friendly Styles */
+@media print {
+  body {
+    background: #ffffff !important;
+    color: #000000 !important;
+    font-size: 12pt;
+  }
+
+  .app-sidebar,
+  .app-header,
+  .mobile-menu-toggle,
+  .app-footer,
+  .action-buttons-bar,
+  .feedback-section {
+    display: none !important;
+  }
+
+  .app-main-wrapper {
+    margin-left: 0 !important;
+  }
+
+  .app-content {
+    padding: 0 !important;
+    max-width: 100% !important;
+  }
+
+  .prediction-hero-card {
+    border: 1px solid #000 !important;
+    background: none !important;
+    box-shadow: none !important;
+    page-break-after: avoid;
+  }
+
+  .rec-card {
+    border: 1px solid #ccc !important;
+    box-shadow: none !important;
+    page-break-inside: avoid;
+  }
+}

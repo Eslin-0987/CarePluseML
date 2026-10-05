@@ -1,0 +1,283 @@
+{% extends "base.html" %}
+
+{% block title %}Prediction Result: {{ prediction.predicted_disease }} - CarePulse ML{% endblock %}
+{% block breadcrumb %}Prediction Details{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/result.css') }}">
+{% endblock %}
+
+{% block content %}
+<div class="result-container">
+  
+  <!-- Action Buttons Bar (Hidden in Print) -->
+  <div class="action-buttons-bar" style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px;">
+    <div style="display: flex; align-items: center; gap: 8px;">
+      <span class="badge badge-secondary" style="font-size: 13px; padding: 6px 12px;">
+        <svg style="width: 14px; height: 14px; margin-right: 4px;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
+        Saved in Personal History
+      </span>
+      <span style="font-size: 13px; color: var(--text-muted);">Assessment ID #{{ prediction.id }}</span>
+    </div>
+
+    <div style="display: flex; gap: 10px;">
+      <button type="button" onclick="window.print();" class="btn btn-secondary btn-sm">
+        <svg style="width: 16px; height: 16px;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"/></svg>
+        Print Report
+      </button>
+      <a href="{{ url_for('prediction.assessment') }}" class="btn btn-primary btn-sm">
+        <svg style="width: 16px; height: 16px;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+        New Assessment
+      </a>
+      <a href="{{ url_for('prediction.history') }}" class="btn btn-secondary btn-sm">
+        View History
+      </a>
+    </div>
+  </div>
+
+  <!-- Primary Focal Hero Card -->
+  <section class="prediction-hero-card">
+    <div class="prediction-header-badge">
+      <svg style="width: 14px; height: 14px;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+      Machine-Learning Decision Support Output
+    </div>
+
+    <div style="font-size: 14px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.04em; color: var(--text-muted); margin-bottom: 4px;">
+      Predicted Condition
+    </div>
+    <h1 class="predicted-condition-title">{{ prediction.predicted_disease }}</h1>
+
+    <!-- Metadata Grid -->
+    <div class="prediction-meta-grid">
+      <div class="prediction-meta-item">
+        <span class="prediction-meta-label">Selected ML Model</span>
+        <span class="prediction-meta-value">{{ prediction.model_used }}</span>
+      </div>
+
+      <div class="prediction-meta-item">
+        <span class="prediction-meta-label">Assessment Date</span>
+        <span class="prediction-meta-value">{{ prediction.prediction_date | format_date }}</span>
+      </div>
+
+      <div class="prediction-meta-item">
+        <span class="prediction-meta-label">Presenting Symptoms Evaluated</span>
+        <span class="prediction-meta-value">{{ formatted_symptoms | length }} symptoms</span>
+      </div>
+
+      <div class="prediction-meta-item">
+        <span class="prediction-meta-label">Demographic Profile</span>
+        <span class="prediction-meta-value">
+          {{ prediction.age if prediction.age else 'N/A' }} yrs &middot; {{ prediction.gender if prediction.gender else 'N/A' }}
+        </span>
+      </div>
+    </div>
+
+    <!-- Probability Estimate Section -->
+    <div class="probability-meter-container">
+      <div style="display: flex; justify-content: space-between; align-items: center;">
+        <span style="font-size: 13px; font-weight: 600; color: var(--text);">Model Probability Estimate:</span>
+        <span style="font-size: 14px; font-weight: 700; color: var(--primary);">
+          {% if prediction.prediction_probability is not none %}
+            {{ (prediction.prediction_probability * 100) | round(1) }}%
+          {% else %}
+            Not available for this model
+          {% endif %}
+        </span>
+      </div>
+
+      {% if prediction.prediction_probability is not none %}
+        {% set prob_percent = (prediction.prediction_probability * 100) | round(1) %}
+        <div class="probability-bar-track">
+          <div class="probability-bar-fill" style="width: {{ prob_percent }}%;"></div>
+        </div>
+        <p class="probability-explanation">
+          The model's probability estimate for this predicted class is <strong>{{ prob_percent }}%</strong> based on decision tree ensemble voting. This is a statistical metric and does not represent clinical certainty.
+        </p>
+      {% else %}
+        <p class="probability-explanation" style="margin-top: 6px;">
+          The Linear Support Vector Classifier determines classification via hyperplane decision boundaries rather than probability scoring. No probability percentage is simulated.
+        </p>
+      {% endif %}
+    </div>
+
+    <!-- Presenting Symptoms Review Pill List -->
+    <div style="margin-top: 18px;">
+      <div style="font-size: 12px; font-weight: 600; color: var(--text-muted); margin-bottom: 8px;">
+        Evaluated Presenting Symptoms ({{ formatted_symptoms | length }}):
+      </div>
+      <div style="display: flex; flex-wrap: wrap; gap: 6px;">
+        {% for s in formatted_symptoms %}
+          <span class="badge badge-neutral" style="font-size: 12px; padding: 4px 10px;">{{ s }}</span>
+        {% endfor %}
+      </div>
+    </div>
+  </section>
+
+  <!-- Model Transparency & Limitations Note -->
+  <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+    <div class="card" style="padding: 16px 20px;">
+      <h3 style="font-size: 13px; font-weight: 700; color: var(--primary); margin-bottom: 4px;">
+        How was this prediction generated?
+      </h3>
+      <p style="font-size: 12px; color: var(--text-muted); line-height: 1.4;">
+        The {{ prediction.model_used }} processed your {{ formatted_symptoms | length }} active symptoms across the 132-dimension clinical feature space and identified <strong>{{ prediction.predicted_disease }}</strong> as the highest-ranking class.
+      </p>
+    </div>
+
+    <div class="card" style="padding: 16px 20px;">
+      <h3 style="font-size: 13px; font-weight: 700; color: #92400E; margin-bottom: 4px;">
+        Model Limitations & Safety Notice
+      </h3>
+      <p style="font-size: 12px; color: #78350F; line-height: 1.4;">
+        Machine-learning predictions depend entirely on provided symptoms and historical training patterns. They do not constitute a clinical diagnosis. Always consult a physician.
+      </p>
+    </div>
+  </div>
+
+  <!-- Educational Knowledge-Based Recommendations -->
+  <div>
+    <h2 style="font-size: 20px; font-weight: 700; color: var(--primary); margin-bottom: 16px;">
+      Educational Recommendations & Clinical Information
+    </h2>
+    <p style="font-size: 13px; color: var(--text-muted); margin-top: -10px; margin-bottom: 20px;">
+      Retrieved via rule-based knowledge matching from curated healthcare educational datasets for <em>{{ prediction.predicted_disease }}</em>.
+    </p>
+
+    <!-- 1. Disease Description Overview Card -->
+    <div class="card" style="margin-bottom: 24px;">
+      <div class="rec-card-header">
+        <div class="rec-card-icon blue">
+          <svg style="width: 18px; height: 18px;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+        </div>
+        <h3 class="rec-card-title">Condition Overview</h3>
+      </div>
+      <p style="font-size: 14px; color: var(--text); line-height: 1.6;">
+        {{ recommendations.description }}
+      </p>
+    </div>
+
+    <!-- 2x2 Recommendation Grid -->
+    <div class="recommendation-grid">
+      
+      <!-- Medicine Information -->
+      <div class="rec-card">
+        <div class="rec-card-header">
+          <div class="rec-card-icon yellow">
+            <svg style="width: 18px; height: 18px;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z"/></svg>
+          </div>
+          <div>
+            <h3 class="rec-card-title">General Medicine Information</h3>
+            <span style="font-size: 11px; color: var(--text-muted);">Educational literature reference &middot; Not a prescription</span>
+          </div>
+        </div>
+
+        {% if recommendations.medicines %}
+          <div>
+            {% for med in recommendations.medicines %}
+              <div class="med-item-card">
+                <div class="med-name">{{ med.name }}</div>
+                <div class="med-info">{{ med.information }}</div>
+              </div>
+            {% endfor %}
+          </div>
+        {% else %}
+          <p style="font-size: 13px; color: var(--text-muted);">No specific medication records mapped for this condition.</p>
+        {% endif %}
+      </div>
+
+      <!-- Recommended Precautions -->
+      <div class="rec-card">
+        <div class="rec-card-header">
+          <div class="rec-card-icon green">
+            <svg style="width: 18px; height: 18px;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/></svg>
+          </div>
+          <div>
+            <h3 class="rec-card-title">Recommended Precautions</h3>
+            <span style="font-size: 11px; color: var(--text-muted);">Key protective actions and preventative measures</span>
+          </div>
+        </div>
+
+        {% if recommendations.precautions %}
+          <ul class="rec-list">
+            {% for item in recommendations.precautions %}
+              <li class="rec-list-item">
+                <span class="rec-list-bullet"></span>
+                <span>{{ item }}</span>
+              </li>
+            {% endfor %}
+          </ul>
+        {% else %}
+          <p style="font-size: 13px; color: var(--text-muted);">Standard health precautions apply: rest, hydration, and medical consultation.</p>
+        {% endif %}
+      </div>
+
+      <!-- Dietary Guidance -->
+      <div class="rec-card">
+        <div class="rec-card-header">
+          <div class="rec-card-icon blue">
+            <svg style="width: 18px; height: 18px;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"/></svg>
+          </div>
+          <div>
+            <h3 class="rec-card-title">Dietary Recommendations</h3>
+            <span style="font-size: 11px; color: var(--text-muted);">Supportive nutritional guidelines</span>
+          </div>
+        </div>
+
+        {% if recommendations.diets %}
+          <ul class="rec-list">
+            {% for item in recommendations.diets %}
+              <li class="rec-list-item">
+                <span class="rec-list-bullet"></span>
+                <span>{{ item }}</span>
+              </li>
+            {% endfor %}
+          </ul>
+        {% else %}
+          <p style="font-size: 13px; color: var(--text-muted);">Maintain a balanced diet rich in hydration and whole foods.</p>
+        {% endif %}
+      </div>
+
+      <!-- Lifestyle & Physical Habits -->
+      <div class="rec-card">
+        <div class="rec-card-header">
+          <div class="rec-card-icon purple">
+            <svg style="width: 18px; height: 18px;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.828 14.828a4 4 0 01-5.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+          </div>
+          <div>
+            <h3 class="rec-card-title">Lifestyle & Supportive Measures</h3>
+            <span style="font-size: 11px; color: var(--text-muted);">Habits, physical exercise, and recovery strategies</span>
+          </div>
+        </div>
+
+        {% if recommendations.lifestyle %}
+          <ul class="rec-list">
+            {% for item in recommendations.lifestyle %}
+              <li class="rec-list-item">
+                <span class="rec-list-bullet"></span>
+                <span>{{ item }}</span>
+              </li>
+            {% endfor %}
+          </ul>
+        {% else %}
+          <p style="font-size: 13px; color: var(--text-muted);">Ensure adequate sleep, stress management, and appropriate physical pacing.</p>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+
+  <!-- Mandatory Healthcare Safety Disclaimer Notice -->
+  <div class="card" style="background-color: #FFFBEB; border-color: #FDE68A; margin-top: 10px;">
+    <div style="display: flex; gap: 14px; align-items: flex-start;">
+      <svg style="width: 24px; height: 24px; color: #D97706; flex-shrink: 0;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
+      <div>
+        <h4 style="font-size: 14px; font-weight: 700; color: #92400E; margin-bottom: 4px;">
+          Healthcare Safety & Research Disclaimer
+        </h4>
+        <p style="font-size: 13px; color: #78350F; line-height: 1.5;">
+          {{ disclaimer }}
+        </p>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

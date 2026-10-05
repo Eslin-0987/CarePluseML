@@ -1,0 +1,15 @@
+/* Signup Page Styles */
+@import url('login.css');
+
+.signup-container {
+  max-width: 560px;
+}
+
+.password-criteria {
+  font-size: 11px;
+  color: var(--text-muted);
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-top: 4px;
+}
