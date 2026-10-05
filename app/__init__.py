@@ -31,6 +31,10 @@ def create_app(config_class=Config):
     app = Flask(__name__, template_folder=template_dir, static_folder=static_dir)
     app.config.from_object(config_class)
 
+    # ProxyFix for Render HTTPS reverse proxy
+    from werkzeug.middleware.proxy_fix import ProxyFix
+    app.wsgi_app = ProxyFix(app.wsgi_app, x_for=1, x_proto=1, x_host=1, x_prefix=1)
+
     # 1. Initialize SQLite Database
     try:
         init_db(app.config['DATABASE_PATH'])
@@ -104,6 +108,8 @@ def create_app(config_class=Config):
                 if user:
                     g.user = user
                     session['user_id'] = int(user_id)
+                else:
+                    session.pop('user_id', None)
             except Exception:
                 g.user = None
 

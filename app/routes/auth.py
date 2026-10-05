@@ -38,7 +38,15 @@ def auth_required(f):
                 
         if user_id:
             db_path = current_app.config['DATABASE_PATH']
-            user = get_user_by_id(db_path, int(user_id))
+            try:
+                user = get_user_by_id(db_path, int(user_id))
+            except Exception:
+                import time
+                time.sleep(0.05)
+                try:
+                    user = get_user_by_id(db_path, int(user_id))
+                except Exception:
+                    user = None
             
         if user:
             g.user = user
@@ -49,7 +57,10 @@ def auth_required(f):
         response = make_response(redirect(url_for('auth.login', next=request.path)))
         unset_jwt_cookies(response)
         session.clear()
-        flash("Your session has expired or is invalid. Please log in to continue.", "warning")
+        if user_id:
+            flash("Your session has expired. Please log in to continue.", "warning")
+        else:
+            flash("Please log in to access this page.", "info")
         return response
             
     return decorated_function

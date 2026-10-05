@@ -8,12 +8,15 @@ load_dotenv(os.path.join(basedir, '.env'))
 
 class Config:
     """Base application configuration."""
-    SECRET_KEY = os.environ.get('SECRET_KEY', 'carepulse-healthcare-ml-secret-key-2026-production')
+    SECRET_KEY = os.environ.get('SECRET_KEY', 'healthrecom-healthcare-ml-secret-key-2026-production')
     
     # JWT Configuration
-    JWT_SECRET_KEY = os.environ.get('JWT_SECRET_KEY', 'healthrecom-jwt-super-secret-key-2026')
+    JWT_SECRET_KEY = os.environ.get('JWT_SECRET_KEY', os.environ.get('SECRET_KEY', 'healthrecom-jwt-super-secret-key-2026'))
     JWT_TOKEN_LOCATION = ['cookies', 'headers']
-    JWT_COOKIE_SECURE = os.environ.get('JWT_COOKIE_SECURE', 'False').lower() in ('true', '1')
+    
+    # Auto-detect Render production environment for secure cookies
+    _is_render = (os.environ.get('RENDER') == 'true') or (os.environ.get('FLASK_ENV') == 'production')
+    JWT_COOKIE_SECURE = os.environ.get('JWT_COOKIE_SECURE', str(_is_render)).lower() in ('true', '1')
     JWT_ACCESS_COOKIE_NAME = 'access_token_cookie'
     JWT_COOKIE_CSRF_PROTECT = False  # Keep false for frictionless clean form submissions in V1
     JWT_COOKIE_SAMESITE = 'Lax'
@@ -21,6 +24,7 @@ class Config:
     
     # Session Configuration
     SESSION_COOKIE_HTTPONLY = True
+    SESSION_COOKIE_SECURE = os.environ.get('SESSION_COOKIE_SECURE', str(_is_render)).lower() in ('true', '1')
     SESSION_COOKIE_SAMESITE = 'Lax'
     PERMANENT_SESSION_LIFETIME = timedelta(days=30)
     

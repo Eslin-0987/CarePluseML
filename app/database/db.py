@@ -3,10 +3,16 @@ import os
 from datetime import datetime
 
 def get_db_connection(db_path):
-    """Create and configure a SQLite connection."""
-    conn = sqlite3.connect(db_path)
+    """Create and configure a robust, concurrent SQLite connection with WAL mode."""
+    conn = sqlite3.connect(db_path, timeout=30.0, check_same_thread=False)
     conn.row_factory = sqlite3.Row
     conn.execute("PRAGMA foreign_keys = ON;")
+    try:
+        conn.execute("PRAGMA journal_mode = WAL;")
+        conn.execute("PRAGMA synchronous = NORMAL;")
+        conn.execute("PRAGMA busy_timeout = 30000;")
+    except Exception:
+        pass
     return conn
 
 def init_db(db_path):
@@ -278,16 +284,20 @@ def get_user_dashboard_stats(db_path, user_id):
 # --- Activity Logging ---
 
 def log_activity(db_path, user_id, activity_type, activity_details=None):
-    """Log an activity event for an authenticated user."""
-    with get_db_connection(db_path) as conn:
-        cursor = conn.cursor()
-        now = datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S')
-        cursor.execute(
-            """INSERT INTO user_activity (user_id, activity_type, activity_details, created_at)
-               VALUES (?, ?, ?, ?)""",
-            (user_id, activity_type, activity_details, now)
-        )
-        conn.commit()
+    """Log an activity event for an authenticated user without blocking requests."""
+    try:
+        with get_db_connection(db_path) as conn:
+            cursor = conn.cursor()
+            now = datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S')
+            cursor.execute(
+                """INSERT INTO user_activity (user_id, activity_type, activity_details, created_at)
+                   VALUES (?, ?, ?, ?)""",
+                (user_id, activity_type, activity_details, now)
+            )
+            conn.commit()
+    except Exception as e:
+        import logging
+        logging.getLogger(__name__).warning(f"Non-critical activity log failed: {e}")
 
 def get_user_activity(db_path, user_id, limit=8):
     """Retrieve recent user activities."""
